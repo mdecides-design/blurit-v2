@@ -365,6 +365,13 @@ span.pro{position:static;display:inline-block}
 .tour-bar{flex:1;height:6px;border-radius:6px;background:var(--fill2);cursor:pointer;overflow:hidden}.tour-bar i{display:block;height:100%;width:0;background:#5564FF}
 .tour-time{font:600 12px/1 "JetBrains Mono",monospace;color:var(--muted);min-width:34px}
 @media (max-width:600px){.tour-cap{bottom:8px;padding:8px 10px}.tour-cap b{font-size:12px}.tour-cap small{display:none}}
+/* links: one colour, distinct from body text (#2F3BD1 = 7.9:1 on white) */
+:root{--link:#2F3BD1;--link-hover:#1E27A8}
+a{color:var(--link)}a:hover{color:var(--link-hover)}
+p a,li a,small a,footer a,.refline a,.osum a,.rev a,td a,.fm-note a{color:var(--link);text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:2px;font-weight:600}
+a.fn{color:var(--link)}a.fn:hover{border-color:var(--link)}
+a.ref b{color:var(--link)}a.ref b::after{content:" ↗";font-weight:600}
+a.ref .refph{color:var(--link)}
 .refph{display:grid;place-items:center;text-align:center;aspect-ratio:9/19.5;border-radius:18px;border:1px dashed var(--line);background:var(--paper);color:var(--muted);font-weight:600;font-size:13px;padding:10px}
 .refph small{font-weight:500}
 </style></head><body>
