@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Blurit V2 Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--page:#ECEAEE;--pink:#E9548F}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--page);font-family:-apple-system,"SF Pro Text","SF Pro Display",Inter,system-ui,sans-serif;color:#111113;-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+input{font:inherit}
+.ic{display:inline-block;vertical-align:middle;flex:none}
+
+/* ---------- stage ---------- */
+.stage{height:100%;display:grid;grid-template-columns:300px 1fr 300px;gap:24px;padding:20px 24px}
+.panel,.notes{overflow:auto;padding:4px 2px 24px}
+.panel h1{font-size:20px;letter-spacing:-.02em;margin:4px 0 4px}
+.panel .kick{font:600 11px/1.2 Inter,system-ui;letter-spacing:.06em;text-transform:uppercase;color:#77737F}
+.panel p{font-size:13px;color:#57535F;margin:6px 0 14px;line-height:1.45}
+.pgrp{background:#fff;border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
+.pgrp h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#77737F}
+.jbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:10px;font-size:13.5px;font-weight:500}
+.jbtn:hover{background:#F2F0F5}.jbtn .n{font:600 11px Inter;color:#fff;background:#5564FF;border-radius:6px;padding:2px 6px}
+.jbtn small{display:block;color:#77737F;font-weight:400;font-size:12px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px;font-size:13.5px}
+.mini{width:34px;height:20px;border-radius:10px;background:#D7D4DC;position:relative;flex:none}.mini::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s}
+.mini.on{background:#5564FF}.mini.on::after{left:16px}
+.screens{display:flex;flex-wrap:wrap;gap:6px}.screens button{font-size:12px;background:#F2F0F5;border-radius:8px;padding:5px 8px}.screens button.cur{background:#5564FF;color:#fff}
+.resetb{width:100%;padding:9px;border-radius:10px;background:#111113;color:#fff;font-weight:600;font-size:13px}
+.notes .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px}
+.notes h2{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}.notes .sid{font:600 11px Inter;color:#77737F;letter-spacing:.05em;text-transform:uppercase}
+.notes ul{padding-left:18px;margin:10px 0 0;font-size:13.5px;line-height:1.5;color:#3b3842}.notes li{margin:5px 0}
+.notes .why{font-size:13px;color:#57535F;line-height:1.5;margin-top:10px}
+.legend2{font-size:12.5px;color:#57535F;line-height:1.7}.legend2 i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.devwrap{display:flex;align-items:flex-start;justify-content:center;min-height:0}
+.device{transform-origin:top center;padding:12px;border-radius:66px;background:#1B1A1F;box-shadow:0 30px 80px -30px rgba(20,10,40,.45),inset 0 0 0 2px #3A3940}
+
+/* ---------- phone ---------- */
+#phone{position:relative;width:390px;height:844px;border-radius:54px;overflow:hidden;background:#000;isolation:isolate}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:20px;background:#000;z-index:60;pointer-events:none}
+#screen{position:absolute;inset:0}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);color:var(--ink)}
+.scr.light,.sheet-l.light{--bg:#F8F6F7;--paper:#fff;--ink:#111113;--muted:#67636F;--fill:#EFEDF1;--fill2:#E2DFE6;--line:#E4E1E8;--acc:#5564FF;--acc-t:#3F4BD6;--acc-soft:#E6E9FF;--glass:rgba(255,255,255,.85)}
+.scr.dark,.sheet-l.dark{--bg:#000;--paper:#1C1C1E;--ink:#fff;--muted:#A19EAA;--fill:#2A2A2E;--fill2:#3A3A3F;--line:#2E2E33;--acc:#5564FF;--acc-t:#8E9BFF;--acc-soft:rgba(85,100,255,.22);--glass:rgba(40,40,46,.85)}
+.a-push{animation:push .32s cubic-bezier(.2,.8,.2,1)}.a-pop{animation:pop2 .28s cubic-bezier(.2,.8,.2,1)}.a-fade{animation:fade .25s}
+@keyframes push{from{transform:translateX(60px);opacity:.3}to{transform:none;opacity:1}}
+@keyframes pop2{from{transform:translateX(-40px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+.sbar{height:54px;flex:none;display:flex;align-items:flex-end;justify-content:space-between;padding:0 30px 10px 38px;font-weight:600;font-size:16px}
+.sbar .r{display:flex;gap:6px;align-items:center}
+.hind{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.9;z-index:55;pointer-events:none}
+.body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;padding:0 20px 34px;scrollbar-width:none}
+.body::-webkit-scrollbar{display:none}
+.body.tight{padding:0 14px 0}
+.grow{flex:1}
+.row{display:flex;align-items:center;gap:8px}.sbw{justify-content:space-between}.col{display:flex;flex-direction:column}
+.g4{gap:4px}.g8{gap:8px}.g12{gap:12px}.g16{gap:16px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mb8{margin-bottom:8px}.ctr{text-align:center;align-items:center}
+.h1{font-size:32px;line-height:38px;font-weight:700;letter-spacing:-.6px;margin:18px 0 8px}
+.h2{font-size:24px;line-height:30px;font-weight:700;letter-spacing:-.4px;margin:0}
+.h3{font-size:17px;font-weight:600;margin:0}
+.sub{font-size:15px;line-height:21px;color:var(--muted);margin:0}
+.cap{font-size:13px;line-height:18px;color:var(--muted)}
+.sect{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:18px 2px 8px}
+.acc{color:var(--acc-t)}
+
+/* buttons */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:999px;font-size:17px;font-weight:600;width:100%;flex:none}
+.btn.pri{background:var(--acc);color:#fff;box-shadow:0 10px 24px -10px rgba(85,100,255,.9),inset 0 1px 0 rgba(255,255,255,.25);background-image:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 55%)}
+.btn.pri:active{background-color:#4553E6;transform:scale(.98)}
+.btn.sec{background:var(--fill);color:var(--ink)}
+.btn.sm{height:38px;font-size:15px;width:auto;padding:0 16px}
+.btn.xs{height:30px;font-size:13px;width:auto;padding:0 12px}
+.btn.dis{opacity:.4;pointer-events:none;box-shadow:none}
+.btn.danger{background:#C23B3B;color:#fff}
+.link{color:var(--acc-t);font-weight:600;font-size:15px;text-align:center;padding:12px 0}
+.ib{width:40px;height:40px;border-radius:50%;display:inline-grid;place-items:center;background:var(--glass);box-shadow:0 1px 3px rgba(0,0,0,.08);flex:none;backdrop-filter:blur(12px)}
+.ib.sm{width:34px;height:34px}
+.ib.dis{opacity:.35;pointer-events:none}
+.nav{display:flex;align-items:center;gap:8px;padding:2px 14px 8px;min-height:52px;flex:none}
+.nav .t{flex:1;font-weight:600;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav .ctrT{text-align:center}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;background:var(--fill);padding:8px 13px;font-weight:500;font-size:14px;white-space:nowrap;flex:none}
+.chip.on{background:var(--acc-soft);color:var(--acc-t);box-shadow:inset 0 0 0 1.5px var(--acc)}
+.chip.sm{padding:5px 10px;font-size:12.5px}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 0;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}
+.chips::-webkit-scrollbar{display:none}
+.tg{width:51px;height:31px;border-radius:16px;background:var(--fill2);position:relative;flex:none;transition:.2s}
+.tg::after{content:"";position:absolute;width:27px;height:27px;border-radius:50%;background:#fff;top:2px;left:2px;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:.2s}
+.tg.on{background:var(--acc)}.tg.on::after{left:22px}
+.seg{display:flex;background:var(--fill);border-radius:999px;padding:3px;gap:2px}
+.seg button{flex:1;text-align:center;padding:7px 6px;border-radius:999px;font-weight:500;font-size:13px;white-space:nowrap}
+.seg button.on{background:var(--paper);box-shadow:0 1px 3px rgba(0,0,0,.15);font-weight:600}
+.dark .seg button.on{background:#48474F}
+.list{background:var(--paper);border-radius:16px;overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;padding:13px 16px;min-height:50px;font-size:16px;border-bottom:.5px solid var(--line);width:100%;text-align:left}
+.li:last-child{border-bottom:0}.li .v{margin-left:auto;color:var(--muted);font-size:15px;display:flex;align-items:center;gap:6px}
+.li.danger{color:#C23B3B;justify-content:center;font-weight:600}
+.card{background:var(--paper);border-radius:18px;padding:14px}
+.toastL{position:absolute;left:0;right:0;bottom:112px;display:flex;justify-content:center;z-index:80;pointer-events:none}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:10px;background:rgba(28,28,30,.94);color:#fff;border-radius:16px;padding:12px 16px;font-size:14px;font-weight:500;box-shadow:0 10px 30px rgba(0,0,0,.3);max-width:340px;animation:toastin .3s cubic-bezier(.2,.8,.2,1)}
+.toast b{color:#9DA7FF;font-weight:700;margin-left:6px}
+@keyframes toastin{from{transform:translateY(20px);opacity:0}to{transform:none;opacity:1}}
+.notif{position:absolute;top:8px;left:8px;right:8px;z-index:90;background:rgba(245,245,247,.96);color:#111;border-radius:22px;padding:12px 14px;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:notif .4s cubic-bezier(.2,.8,.2,1);cursor:pointer}
+.notif .ai{width:38px;height:38px;border-radius:10px;background:#5564FF;display:grid;place-items:center;color:#fff;flex:none}
+.notif b{display:block;font-size:14px}.notif small{font-size:13px;color:#555}
+@keyframes notif{from{transform:translateY(-100px)}to{transform:none}}
+
+/* sheet */
+#sheetLayer{position:absolute;inset:0;z-index:70;pointer-events:none}
+#sheetLayer.on{pointer-events:auto}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.32);animation:fade .2s}
+.sheet-l{position:absolute;left:0;right:0;bottom:0;max-height:86%;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);border-radius:32px 32px 0 0;padding:8px 18px 30px;box-shadow:0 -10px 40px rgba(0,0,0,.2)}
+.sheet-l.in{animation:sheetin .34s cubic-bezier(.2,.8,.2,1)}
+@keyframes sheetin{from{transform:translateY(100%)}to{transform:none}}
+.sheet-l.dark{background:#1C1C1E}
+.grabber{width:38px;height:5px;border-radius:3px;background:var(--fill2);align-self:center;margin:2px 0 10px;flex:none}
+.shb{overflow-y:auto;min-height:0;scrollbar-width:none;display:flex;flex-direction:column}.shb::-webkit-scrollbar{display:none}
+.sheet-l.alert{left:50%;top:50%;bottom:auto;transform:translate(-50%,-50%);width:290px;border-radius:16px;padding:0;background:rgba(242,242,246,.97);color:#111;text-align:center;overflow:hidden}
+.sheet-l.alert.in{animation:alertin .25s}
+@keyframes alertin{from{transform:translate(-50%,-50%) scale(1.1);opacity:0}}
+.alert .ah{padding:18px 16px 14px}.alert .ah b{font-size:17px;display:block}.alert .ah p{font-size:13px;margin:4px 0 0;color:#333}
+.alert .ab{display:block;width:100%;border-top:.5px solid #C6C6C8;padding:11px;font-size:17px;color:#0A7AFF}
+.alert .ab.b{font-weight:600}
+.simtag{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:#fff;color:#57535F;border-radius:999px;font-size:11px;padding:4px 10px;white-space:nowrap}
+
+/* photo + covers */
+.photo{position:relative;overflow:hidden;border-radius:20px;background:#111;flex:none;touch-action:none}
+.photo .img{position:absolute;left:0;width:100%;background-size:100% 100%;background-repeat:no-repeat}
+.cv{position:absolute;display:grid;place-items:center;font-style:normal;line-height:1;pointer-events:none;transition:opacity .12s}
+.cv.emoji{filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.cv.blur{border-radius:50%;-webkit-backdrop-filter:blur(var(--b));backdrop-filter:blur(var(--b));background:rgba(255,255,255,.03)}
+.cv.blur.motion{transform:scaleX(1.2);-webkit-backdrop-filter:blur(var(--b)) contrast(.9);backdrop-filter:blur(var(--b)) contrast(.9)}
+.cv.blur.frosted{-webkit-backdrop-filter:blur(var(--b)) saturate(.5) brightness(1.15);backdrop-filter:blur(var(--b)) saturate(.5) brightness(1.15);background:rgba(255,255,255,.2)}
+.cv.blur.rect,.cv.pixel.rect,.cv.shape.rect{border-radius:8px}
+.cv.pixel{border-radius:22%;overflow:hidden}
+.cv.pixel canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.cv.shape{border-radius:50%}
+.cv.ghost{border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 26px 12px rgba(255,255,255,.55)}
+.cv.erase{border-radius:50%;-webkit-backdrop-filter:blur(28px) saturate(.2);backdrop-filter:blur(28px) saturate(.2);box-shadow:0 0 30px 18px rgba(0,0,0,.05)}
+.cv.swap{border-radius:46%;background-repeat:no-repeat;box-shadow:0 0 0 2px rgba(255,255,255,.35)}
+.cv.keep{border-radius:46%;border:2px solid #3FC07A}
+.cv.keep em{position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#23794A;color:#fff;font:600 11px/1 -apple-system,Inter,system-ui;padding:4px 8px;border-radius:999px;font-style:normal;white-space:nowrap}
+.cv.dots{border:1.5px solid #9DA7FF;border-radius:14px;background:radial-gradient(circle,#D0D5FF 1.4px,transparent 1.9px) 0 0/8px 8px;animation:pop .35s}
+.cv.sel{border:2.5px solid #fff;border-radius:16px;box-shadow:0 0 0 1.5px #5564FF,0 2px 10px rgba(0,0,0,.4)}
+.cv.predict{border:2px dashed #FF6B6B;border-radius:16px;background:rgba(255,80,80,.1)}
+.cv.hid{opacity:0}
+.photo.compare .cv:not(.keep){opacity:0}
+.hot{position:absolute;border-radius:50%;z-index:4}
+.hint{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);background:rgba(0,0,0,.62);color:#fff;border-radius:999px;padding:6px 12px;font-size:12.5px;white-space:nowrap;z-index:5;pointer-events:none;backdrop-filter:blur(10px)}
+.scanline{position:absolute;left:0;right:0;height:2px;background:#8E9BFF;box-shadow:0 0 16px 4px rgba(85,100,255,.7);animation:scanl 1.6s ease-in-out infinite alternate}
+@keyframes scanl{from{top:15%}to{top:85%}}
+
+/* avatars */
+.av{border-radius:50%;flex:none;background-repeat:no-repeat;background-color:#ccc;position:relative;overflow:hidden;display:inline-block}
+.av .blurov{position:absolute;inset:0;-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+
+/* welcome / onboarding */
+.pills{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.pills span{border:1px dashed var(--fill2);border-radius:999px;padding:6px 11px;font-size:13px;font-weight:600;color:var(--muted)}
+.steps{display:flex;gap:5px;flex:1}.steps i{flex:1;height:4px;border-radius:4px;background:var(--fill2)}.steps i.on{background:var(--acc)}
+.opt{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:var(--paper);border:1.5px solid transparent;width:100%;text-align:left}
+.opt .oi{width:40px;height:40px;border-radius:12px;background:var(--fill);display:grid;place-items:center;flex:none}
+.opt b{display:block;font-size:16px}.opt small{color:var(--muted);font-size:13.5px}
+.opt.on{border-color:var(--acc);background:var(--acc-soft)}.opt.on .oi{background:var(--acc);color:#fff}
+.opt .ck{margin-left:auto;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--fill2);display:grid;place-items:center;flex:none}
+.opt.on .ck{background:var(--acc);border-color:var(--acc);color:#fff}
+.perm{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center}.perm span{height:64px;border-radius:14px;background-size:cover;background-position:center;opacity:.35}.perm span.on{opacity:1;box-shadow:0 0 0 3px var(--acc)}
+.nexti{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--paper);border-radius:16px;padding:14px;font-size:14px;line-height:20px}
+.big-ic{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;margin:0 auto}
+
+/* home */
+.logo{font-size:28px;font-weight:800;letter-spacing:-.8px}
+.tiles{display:flex;gap:10px}
+.tile{flex:1;border-radius:22px;background:var(--paper);padding:16px;display:flex;flex-direction:column;gap:2px;min-height:110px;justify-content:flex-end;text-align:left}
+.tile b{font-size:18px}.tile small{color:var(--muted);font-size:13px}
+.tile.pri{background:var(--acc);color:#fff;box-shadow:0 14px 28px -14px rgba(85,100,255,.95);background-image:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,0) 50%)}.tile.pri small{color:rgba(255,255,255,.85)}
+.proj{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pc{text-align:left;display:flex;flex-direction:column;gap:6px}
+.pc .th{position:relative;height:200px;border-radius:18px;overflow:hidden;background:#222}
+.pc b{font-size:15px}.pc small{font-size:13px;color:var(--muted)}
+.state{position:absolute;right:8px;top:8px;display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700}
+.state.ok{background:#E3F3E8;color:#2E7348}.state.warn{background:#FFF1DE;color:#9A5200}.state.draft{background:rgba(255,255,255,.9);color:#333}
+.dur{position:absolute;left:8px;bottom:8px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:600;display:flex;gap:4px;align-items:center}
+.lc{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;border:1.5px dashed var(--fill2);text-align:left;width:100%}
+.lc b{display:block;font-size:15px}.lc small{color:var(--muted);font-size:13px}
+.tag{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:3px 8px;background:var(--acc-soft);color:var(--acc-t)}
+
+/* import */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:0 -14px}
+.pgrid>button{position:relative;aspect-ratio:1;background-size:cover;background-color:#ddd}
+.pgrid>button.sel::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px #5564FF;background:rgba(85,100,255,.12)}
+.pgrid .num{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:1.5px solid #fff;background:rgba(0,0,0,.2);font:700 13px/21px -apple-system,Inter;color:#fff;text-align:center;z-index:2}
+.pgrid .sel .num{background:#5564FF;border-color:#5564FF}
+.pgrid .fc{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:2px 7px;font-size:11.5px;display:flex;gap:3px;align-items:center;z-index:2}
+.pgrid .dv{position:absolute;right:6px;bottom:6px;color:#fff;font-size:12px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6);z-index:2}
+.camt{display:grid!important;place-items:center;background:#111113!important;color:#fff}
+.limited{font-size:13.5px;color:var(--muted);background:var(--paper);border-radius:12px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center}
+.qbanner{display:flex;gap:10px;align-items:center;background:var(--acc-soft);color:var(--acc-t);border-radius:14px;padding:10px 12px;font-size:14px;font-weight:600}
+.bottombar{padding:10px 14px 34px;display:flex;gap:10px;background:linear-gradient(180deg,transparent,var(--bg) 30%);flex:none}
+
+/* scan */
+.prog{height:6px;border-radius:6px;background:var(--fill);overflow:hidden}.prog i{display:block;height:100%;background:var(--acc);transition:width .4s}
+.lrows{display:flex;flex-direction:column;gap:8px}
+.lrow{display:flex;align-items:center;gap:10px;background:var(--paper);border-radius:14px;padding:12px 14px;font-size:15px;font-weight:500;animation:pop .3s}
+.lrow small{margin-left:auto;color:var(--muted);font-weight:400}
+.lrow.sk{color:var(--muted);background:linear-gradient(90deg,var(--paper),var(--fill),var(--paper));background-size:200% 100%;animation:sk 1.2s infinite linear}
+@keyframes sk{from{background-position:200% 0}to{background-position:0 0}}
+
+/* roster */
+.pr{display:flex;align-items:center;gap:10px;background:var(--paper);border-radius:18px;padding:10px 10px 10px 12px;border:1.5px solid transparent}
+.pr.me{border-color:#3C8A57;background:#EEF8F1}
+.pr .nm{flex:1;min-width:0}.pr b{display:block;font-size:15.5px}.pr small{font-size:12.5px;color:var(--muted)}
+.mseg{display:flex;background:var(--fill);border-radius:999px;padding:3px}
+.mseg button{padding:7px 9px;border-radius:999px;font-size:13px;font-weight:500;min-width:40px}
+.mseg button.on{background:var(--paper);box-shadow:0 1px 3px rgba(0,0,0,.18);font-weight:700}
+.pr.me .mseg{background:#DCEFE3}
+.meq{display:inline-flex;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--acc-t);background:var(--acc-soft);border-radius:999px;padding:3px 9px}
+.av2{width:44px;height:44px;border-radius:50%;background:var(--fill2);display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.fgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 8px;justify-items:center}
+.fgrid button{position:relative}
+.fgrid .st{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:11px;border:2px solid var(--bg)}
+.st.b{background:#5564FF;color:#fff}.st.v{background:#3C8A57;color:#fff}
+
+/* editor */
+.playrow{display:flex;align-items:center;gap:6px;padding:8px 14px 4px;font-size:13px;color:var(--muted)}
+.playrow .tm{font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink)}
+.tl{position:relative;margin:4px 14px 0;background:#141417;border-radius:14px;padding:6px 8px 8px;font-size:11.5px;color:#A19EAA;touch-action:none}
+.tlh{display:flex;justify-content:space-between;margin-left:62px;padding-bottom:4px;font-variant-numeric:tabular-nums}
+.trk{position:relative;height:22px;margin:4px 0 0 62px;border-radius:6px;background:#202027}
+.trk em{position:absolute;left:-62px;width:58px;top:4px;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#C9C6D2}
+.trk .clip{position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(90deg,#3B3A45 0 20px,#2E2D36 20px 21px)}
+.trk .bar{position:absolute;top:3px;bottom:3px;border-radius:5px}
+.trk .gap{position:absolute;top:3px;bottom:3px;border-radius:4px;background:repeating-linear-gradient(135deg,#E5484D 0 3px,#5a2020 3px 6px)}
+.trk.more{background:transparent;border:1px dashed #3A3946;height:22px}.trk.more span{position:absolute;left:8px;top:3px;color:#C9C6D2}
+.ph{position:absolute;top:22px;bottom:6px;width:2px;background:#fff;border-radius:2px;margin-left:62px;box-shadow:0 0 6px rgba(255,255,255,.6)}
+.ph::before{content:"";position:absolute;top:-6px;left:-4px;width:10px;height:10px;border-radius:50%;background:#fff}
+.warnbar{margin:8px 14px 0;display:flex;align-items:center;gap:8px;background:rgba(229,72,77,.16);color:#FF9A9A;border-radius:12px;padding:8px 8px 8px 12px;font-size:13.5px}
+.warnbar .btn{margin-left:auto;background:#C23B3B;color:#fff}
+.ebar{display:flex;justify-content:space-around;padding:8px 10px 30px;border-top:.5px solid var(--line);flex:none;background:#000}
+.ebar button{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;color:#C9C6D2;padding:6px 10px;border-radius:14px;min-width:72px}
+.ebar button.on{color:#B4BCFF;background:rgba(85,100,255,.18)}
+
+/* studio */
+.stabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 90%,transparent);mask-image:linear-gradient(90deg,#000 90%,transparent)}
+.stabs::-webkit-scrollbar{display:none}
+.stabs button{padding:7px 12px;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted);white-space:nowrap;display:flex;align-items:center;gap:6px}
+.stabs button.on{background:var(--acc);color:#fff}
+.gd{display:inline-block;width:8px;height:8px;border-radius:50%}.gd.pg{background:#3FAE6A}.gd.sty{background:#E0A030}
+.stabs button.on .gd{box-shadow:0 0 0 2px #fff}
+.leg{display:flex;gap:14px;font-size:12px;color:var(--muted);margin:8px 2px 4px}.leg span{display:flex;gap:5px;align-items:center}
+.sgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.sgrid button{aspect-ratio:1;border-radius:16px;background:var(--fill);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:26px;position:relative}
+.sgrid button small{font-size:11px;color:var(--muted);font-weight:500}
+.sgrid button.on{box-shadow:inset 0 0 0 2.5px var(--acc);background:var(--acc-soft)}
+.sgrid .prv{width:34px;height:34px;border-radius:50%;display:block}
+.sgrid .lock{position:absolute;top:5px;right:5px;font-size:9px;font-weight:800;background:#5564FF;color:#fff;border-radius:5px;padding:2px 4px}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 2px;font-size:15px}
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:4px;background:var(--fill2);outline:none;flex:1}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.4);cursor:pointer}
+.val{font-variant-numeric:tabular-nums;font-weight:700;width:34px;text-align:right;font-size:14px}
+.warnote{display:flex;gap:8px;align-items:flex-start;background:rgba(224,160,48,.16);color:#F2C27A;border-radius:12px;padding:10px 12px;font-size:13px;line-height:18px}
+.light .warnote{background:#FFF1DE;color:#7A4300}
+.emg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.emg button{font-size:28px;aspect-ratio:1;border-radius:12px}.emg button:active{background:var(--fill)}
+.packs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.packs button{background:var(--fill);border-radius:14px;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:24px;position:relative}
+.packs small{font-size:11.5px;color:var(--muted)}
+.search{display:flex;align-items:center;gap:8px;background:var(--fill);border-radius:12px;padding:9px 12px;color:var(--muted)}
+.search input{border:0;background:transparent;outline:none;flex:1;color:var(--ink);font-size:16px}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mgrid button{background:var(--fill);border-radius:18px;padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px;font-weight:500}
+.crow{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:.5px solid var(--line);width:100%;text-align:left}
+.crow .cvi{width:40px;height:40px;border-radius:12px;background:var(--fill);display:grid;place-items:center;font-size:22px;flex:none}
+.crow b{font-size:15px;display:block}.crow small{font-size:12.5px;color:var(--muted)}
+
+/* brush */
+.mask{position:absolute;border-radius:12px;background:rgba(229,57,53,.45);box-shadow:0 0 0 2px #FF6B6B;pointer-events:none;animation:pop .25s}
+.bdot{position:absolute;border-radius:50%;background:rgba(229,57,53,.5);pointer-events:none}
+.tapdot{position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 0 0 7px rgba(255,255,255,.35);transform:translate(-50%,-50%);pointer-events:none}
+.loupe{position:absolute;left:10px;top:10px;width:86px;height:86px;border-radius:50%;border:3px solid #fff;background-repeat:no-repeat;box-shadow:0 6px 16px rgba(0,0,0,.45);pointer-events:none;z-index:6}
+
+/* gaps */
+.frames{position:relative;display:flex;gap:4px}
+.frames span{flex:1;height:52px;border-radius:8px;background-size:cover;background-position:center;border-bottom:4px solid #3FAE6A;transition:border-color .3s}
+.frames span.gap{border-bottom-color:#E5484D;filter:saturate(.4) brightness(.7)}
+.frames .hs,.frames .he{position:absolute;top:-6px;bottom:-6px;width:6px;border-radius:3px}.frames .hs{background:#3FAE6A}.frames .he{background:#E5484D}
+
+/* audio */
+.wave{display:flex;align-items:center;gap:3px;height:70px;background:var(--paper);border-radius:16px;padding:0 12px}
+.wave i{flex:1;background:#6E6B7E;border-radius:2px;transition:background .2s}
+.wave i.bl{background:var(--pink)}.wave i.pl{background:#fff}
+.trans{font-size:17px;line-height:26px;background:var(--paper);border-radius:16px;padding:14px 16px}
+.trans mark{border-radius:6px;padding:1px 4px;color:inherit}
+.trans mark.off{background:rgba(233,84,143,.28)}.trans mark.bleep{background:#E9548F;color:#fff}.trans mark.mute{background:#3A3A3F;color:#8D8A97;text-decoration:line-through}
+.trans mark.flash{animation:fl .4s}@keyframes fl{50%{transform:scale(1.15)}}
+
+/* check */
+.score{background:var(--paper);border-radius:20px;padding:16px}
+.score b{font-size:22px;display:block;letter-spacing:-.3px}.score small{color:var(--muted);font-size:14px}
+.segb{display:flex;gap:5px;margin-top:12px}.segb i{flex:1;height:8px;border-radius:4px;background:var(--fill2);transition:background .3s}.segb i.on{background:#3C8A57}
+.chk{display:flex;align-items:center;gap:10px;padding:12px 12px;border-radius:14px;font-size:15px;width:100%;text-align:left;min-height:52px}
+.chk.ok{background:#E3F3E8;color:#1F5A35}.chk.bad{background:#FFF1DE;color:#6B3A00}.chk.info{background:var(--paper);color:var(--ink)}
+.chk .btn{margin-left:auto}
+.chk .ci{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;flex:none}
+.chk.ok .ci{background:#3C8A57;color:#fff}.chk.bad .ci{background:#C26A00;color:#fff}.chk.info .ci{background:var(--fill);color:var(--muted)}
+
+/* batch */
+.bgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.bgrid span{position:relative;aspect-ratio:1;border-radius:12px;background-size:cover;background-position:center}
+.bgrid .bs{position:absolute;top:6px;right:6px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:800;color:#fff}
+.bs.ok{background:#2E7348}.bs.warn{background:#9A5200}.bs.wait{background:rgba(0,0,0,.45)}
+.spin{width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* live */
+.cam{position:relative;flex:1;background-size:cover;background-position:center}
+.camtop{position:absolute;top:58px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:center;z-index:5}
+.cambot{position:absolute;bottom:40px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:16px;z-index:5}
+.shutter{width:76px;height:76px;border-radius:50%;border:5px solid #fff;display:grid;place-items:center}
+.shutter i{width:58px;height:58px;border-radius:50%;background:#E5484D;transition:.2s}
+.shutter.rec i{width:28px;height:28px;border-radius:8px}
+.rec{background:rgba(194,59,59,.92);color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.camc{position:absolute;display:grid;place-items:center;font-style:normal;border-radius:50%;transition:all .2s}
+
+/* enroll */
+.ring{width:190px;height:190px;border-radius:50%;margin:10px auto 0;display:grid;place-items:center}
+.ring .av{width:170px;height:170px}
+.consent{display:flex;flex-direction:column;gap:10px;background:var(--paper);border-radius:16px;padding:14px;font-size:15px;text-align:left;width:100%}
+.consent div{display:flex;gap:10px;align-items:center}.consent .ic{color:var(--acc-t)}
+.plan{border-radius:18px;padding:14px 16px;background:var(--paper);border:2px solid transparent;width:100%;text-align:left;position:relative}
+.plan b{font-size:17px;display:block}.plan small{color:var(--muted);font-size:14px}
+.plan.on{border-color:var(--acc);background:var(--acc-soft)}
+.plan .tag{position:absolute;right:14px;top:14px}
+.perk{display:flex;gap:12px;align-items:center;font-size:16px;padding:6px 0}.perk .ic{color:var(--acc-t)}
+.legal{display:flex;justify-content:center;gap:18px;font-size:13px;color:var(--muted)}.legal button{text-decoration:underline}
+
+/* hotspot flash */
+#phone.flash [data-go],#phone.flash [data-act]:not(.scrim){outline:2px solid rgba(85,100,255,.85);outline-offset:2px;border-radius:12px}
+.hotsp #phone [data-go],.hotsp #phone [data-act]:not(.scrim){outline:2px dashed rgba(85,100,255,.6);outline-offset:1px}
+
+@media (max-width:1180px){.stage{grid-template-columns:280px 1fr}.notes{display:none}}
+@media (max-width:820px){.stage{grid-template-columns:1fr;padding:0}.panel{display:none}.device{padding:0;border-radius:0;background:none;box-shadow:none}#phone{border-radius:0}}
+</style>
+</head>
+<body>
+<div class="stage">
+ <aside class="panel" id="panel"></aside>
+ <div class="devwrap" id="devwrap"><div class="device" id="device"><div id="phone"><div id="screen"></div><div id="sheetLayer"></div><div class="toastL" id="toastL"></div><div id="notifL"></div><div class="island"></div></div></div></div>
+ <aside class="notes" id="notes"></aside>
+</div>
+<script>
+/* ===================== icons ===================== */
+const IC={
+ x:'<path d="M18 6 6 18M6 6l12 12"/>',chev:'<path d="m15 18-6-6 6-6"/>',chevr:'<path d="m9 18 6-6-6-6"/>',more:'<circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',redo:'<path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/>',
+ play:'<path d="M7 4v16l13-8z" fill="currentColor"/>',pause:'<rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/>',
+ face:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>',
+ drop:'<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+ brush:'<path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/>',
+ text:'<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',audio:'<path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3"/>',
+ shield:'<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+ people:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>',grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+ search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',check:'<path d="M20 6 9 17l-5-5"/>',warn:'<path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+ cam:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',video:'<path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
+ share:'<path d="M12 2v13M16 6l-4-4-4 4M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>',lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',eyeoff:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><path d="M3 3l18 18"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 0 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 0 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 0 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 0 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+ layers:'<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',wand:'<path d="m15 4-1 1M21 10l-1 1M18 2v2M22 6h-2M14 10 3 21"/>',spark:'<path d="M12 3l1.9 5.8L20 10l-6.1 1.2L12 17l-1.9-5.8L4 10l6.1-1.2z"/>',
+ resize:'<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+ pin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',trash:'<path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+ erase:'<path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7M5 11l9 9"/>',tap:'<path d="M9 11V6a2 2 0 1 1 4 0v5"/><path d="M13 9a2 2 0 1 1 4 0v3"/><path d="M17 11a2 2 0 1 1 4 0v4a7 7 0 0 1-7 7h-1a7 7 0 0 1-6-3.4L4 15.5a2 2 0 0 1 3.4-2L9 15"/>',
+};
+const ic=(n,s=20,sw=2)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${IC[n]}</svg>`;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+
+/* ===================== media data ===================== */
+const TRACK={"pv_w":[[0.281,0.449,0.238,0.134],[0.276,0.45,0.235,0.132],[0.269,0.451,0.251,0.141],[0.265,0.448,0.252,0.142],[0.263,0.445,0.249,0.14],[0.261,0.446,0.255,0.144],[0.263,0.445,0.248,0.139],[0.264,0.45,0.256,0.144],[0.268,0.452,0.26,0.146],[0.267,0.45,0.261,0.147],[0.268,0.446,0.26,0.146],[0.266,0.445,0.256,0.144],[0.265,0.446,0.253,0.142],[0.267,0.449,0.258,0.145],[0.267,0.451,0.256,0.144],[0.267,0.45,0.259,0.146],[0.267,0.448,0.259,0.145],[0.265,0.445,0.256,0.144],[0.266,0.444,0.252,0.141],[0.268,0.447,0.253,0.142],[0.269,0.45,0.255,0.143],[0.273,0.45,0.252,0.142],[0.272,0.447,0.254,0.143],[0.271,0.444,0.254,0.143],[0.271,0.444,0.253,0.142],[0.271,0.447,0.254,0.143],[0.272,0.451,0.255,0.143],[0.272,0.452,0.256,0.144],[0.27,0.449,0.251,0.141],[0.269,0.449,0.252,0.142],[0.268,0.449,0.252,0.142],[0.268,0.45,0.251,0.141],[0.27,0.452,0.252,0.142],[0.27,0.454,0.254,0.143],[0.268,0.451,0.257,0.145],[0.263,0.443,0.252,0.142],[0.255,0.439,0.252,0.142],[0.254,0.44,0.253,0.142],[0.254,0.445,0.252,0.142],[0.258,0.448,0.251,0.141],[0.255,0.449,0.255,0.143],[0.257,0.445,0.237,0.133],[0.257,0.446,0.25,0.141],[0.257,0.446,0.249,0.14],[0.261,0.449,0.253,0.142],[0.263,0.454,0.256,0.144],[0.266,0.453,0.257,0.144],[0.267,0.451,0.256,0.144],[0.267,0.449,0.255,0.143],[0.267,0.449,0.251,0.141],[0.267,0.454,0.256,0.144],[0.271,0.455,0.253,0.142],[0.271,0.454,0.259,0.146],[0.268,0.451,0.259,0.146],[0.271,0.45,0.255,0.143],[0.271,0.45,0.252,0.142],[0.272,0.453,0.252,0.142],[0.276,0.455,0.252,0.142],[0.275,0.454,0.249,0.14],[0.273,0.451,0.249,0.14],[0.271,0.45,0.25,0.141],[0.272,0.45,0.249,0.14],[0.27,0.451,0.252,0.142],[0.268,0.449,0.251,0.141],[0.26,0.438,0.254,0.143],[0.246,0.428,0.251,0.141],[0.233,0.421,0.247,0.139],[0.226,0.42,0.246,0.138],[0.22,0.424,0.249,0.14],[0.223,0.428,0.245,0.138],[0.225,0.43,0.245,0.138],[0.227,0.428,0.241,0.135],[0.228,0.43,0.245,0.138],[0.238,0.432,0.231,0.13],[0.258,0.435,0.222,0.125],[0.269,0.441,0.228,0.128],[0.274,0.441,0.22,0.124],[0.272,0.44,0.215,0.121],[0.265,0.439,0.212,0.119],[0.261,0.44,0.219,0.123],[0.259,0.444,0.228,0.128],[0.255,0.445,0.225,0.126],[0.258,0.446,0.227,0.128],[0.256,0.443,0.227,0.128],[0.253,0.442,0.231,0.13],[0.249,0.444,0.235,0.132],[0.25,0.445,0.228,0.128],[0.247,0.449,0.236,0.133],[0.251,0.449,0.228,0.128],[0.25,0.448,0.234,0.132],[0.251,0.444,0.231,0.13],[0.25,0.443,0.232,0.13],[0.248,0.443,0.231,0.13],[0.248,0.448,0.232,0.131],[0.255,0.447,0.223,0.126],[0.256,0.447,0.223,0.125],[0.256,0.445,0.22,0.124],[0.257,0.446,0.226,0.127],[0.256,0.445,0.218,0.123],[0.257,0.447,0.218,0.123],[0.265,0.45,0.22,0.124],[0.265,0.452,0.226,0.127],[0.269,0.45,0.226,0.127],[0.264,0.447,0.22,0.123],[0.263,0.444,0.224,0.126],[0.263,0.446,0.217,0.122],[0.265,0.449,0.222,0.125],[0.267,0.449,0.216,0.121],[0.261,0.448,0.222,0.125],[0.262,0.445,0.221,0.124],[0.259,0.443,0.223,0.126],[0.252,0.444,0.229,0.129],[0.246,0.444,0.237,0.133],[0.241,0.444,0.245,0.138],[0.24,0.441,0.247,0.139],[0.24,0.439,0.248,0.139],[0.24,0.439,0.244,0.137],[0.243,0.443,0.247,0.139],[0.246,0.446,0.243,0.136],[0.247,0.448,0.251,0.141]],"pv_m":[[0.535,0.428,0.275,0.154],[0.536,0.431,0.27,0.152],[0.534,0.432,0.276,0.155],[0.533,0.428,0.263,0.148],[0.532,0.424,0.261,0.147],[0.533,0.423,0.268,0.15],[0.53,0.422,0.256,0.144],[0.53,0.429,0.262,0.148],[0.529,0.43,0.268,0.151],[0.525,0.43,0.271,0.152],[0.525,0.427,0.273,0.154],[0.523,0.423,0.267,0.15],[0.523,0.423,0.264,0.148],[0.519,0.427,0.266,0.15],[0.519,0.43,0.271,0.152],[0.519,0.428,0.266,0.15],[0.52,0.425,0.272,0.153],[0.521,0.423,0.27,0.152],[0.52,0.422,0.265,0.149],[0.525,0.424,0.262,0.147],[0.525,0.429,0.269,0.151],[0.526,0.428,0.266,0.15],[0.526,0.424,0.262,0.148],[0.527,0.422,0.268,0.151],[0.525,0.419,0.264,0.149],[0.525,0.422,0.265,0.149],[0.524,0.426,0.261,0.147],[0.525,0.428,0.266,0.15],[0.521,0.426,0.261,0.147],[0.52,0.426,0.261,0.147],[0.52,0.425,0.261,0.147],[0.523,0.427,0.258,0.145],[0.523,0.431,0.255,0.143],[0.522,0.436,0.262,0.147],[0.523,0.433,0.262,0.147],[0.526,0.425,0.265,0.149],[0.526,0.42,0.264,0.148],[0.528,0.42,0.266,0.149],[0.527,0.424,0.264,0.149],[0.526,0.429,0.266,0.15],[0.526,0.426,0.252,0.142],[0.527,0.425,0.253,0.142],[0.521,0.425,0.262,0.147],[0.522,0.424,0.252,0.142],[0.518,0.428,0.259,0.146],[0.519,0.43,0.258,0.145],[0.518,0.43,0.262,0.148],[0.518,0.427,0.258,0.145],[0.518,0.425,0.253,0.142],[0.52,0.426,0.253,0.142],[0.521,0.429,0.256,0.144],[0.524,0.43,0.251,0.141],[0.524,0.429,0.248,0.14],[0.523,0.427,0.253,0.142],[0.521,0.427,0.261,0.147],[0.518,0.426,0.255,0.143],[0.513,0.429,0.249,0.14],[0.508,0.431,0.25,0.141],[0.507,0.431,0.254,0.143],[0.507,0.429,0.252,0.142],[0.508,0.43,0.257,0.144],[0.507,0.431,0.257,0.144],[0.51,0.426,0.249,0.14],[0.512,0.414,0.261,0.147],[0.511,0.398,0.256,0.144],[0.513,0.39,0.255,0.144],[0.515,0.385,0.251,0.141],[0.514,0.383,0.253,0.142],[0.51,0.384,0.253,0.143],[0.503,0.386,0.248,0.14],[0.5,0.387,0.238,0.134],[0.499,0.387,0.23,0.129],[0.498,0.388,0.242,0.136],[0.498,0.389,0.237,0.133],[0.495,0.392,0.234,0.131],[0.491,0.401,0.249,0.14],[0.49,0.402,0.244,0.137],[0.49,0.4,0.243,0.137],[0.488,0.396,0.239,0.134],[0.486,0.398,0.237,0.134],[0.483,0.402,0.244,0.137],[0.484,0.404,0.246,0.138],[0.482,0.403,0.24,0.135],[0.482,0.402,0.244,0.137],[0.482,0.399,0.243,0.137],[0.483,0.398,0.237,0.134],[0.482,0.401,0.243,0.137],[0.481,0.402,0.235,0.132],[0.481,0.405,0.236,0.133],[0.483,0.402,0.24,0.135],[0.482,0.399,0.237,0.133],[0.48,0.399,0.241,0.135],[0.484,0.401,0.236,0.133],[0.487,0.403,0.24,0.135],[0.491,0.403,0.24,0.135],[0.489,0.405,0.243,0.137],[0.49,0.405,0.229,0.129],[0.493,0.404,0.231,0.13],[0.494,0.403,0.237,0.133],[0.494,0.403,0.23,0.129],[0.493,0.408,0.239,0.134],[0.496,0.411,0.243,0.136],[0.497,0.409,0.243,0.137],[0.498,0.407,0.234,0.132],[0.496,0.407,0.233,0.131],[0.493,0.409,0.235,0.132],[0.497,0.409,0.238,0.134],[0.497,0.411,0.244,0.137],[0.495,0.411,0.245,0.138],[0.493,0.411,0.237,0.133],[0.498,0.409,0.237,0.133],[0.498,0.408,0.235,0.132],[0.498,0.409,0.244,0.137],[0.498,0.409,0.24,0.135],[0.499,0.41,0.243,0.137],[0.5,0.407,0.236,0.133],[0.503,0.406,0.24,0.135],[0.504,0.41,0.243,0.137],[0.502,0.415,0.241,0.136],[0.503,0.418,0.239,0.134]],"pv_g":[[0.774,0.531,0.243,0.137],[0.775,0.53,0.242,0.136],[0.777,0.527,0.245,0.138],[0.777,0.524,0.234,0.131],[0.777,0.521,0.234,0.132],[0.772,0.522,0.237,0.133],[0.768,0.521,0.234,0.131],[0.759,0.524,0.238,0.134],[0.75,0.526,0.243,0.137],[0.748,0.523,0.241,0.135],[0.747,0.521,0.24,0.135],[0.746,0.519,0.238,0.134],[0.749,0.52,0.234,0.132],[0.751,0.524,0.24,0.135],[0.752,0.526,0.247,0.139],[0.755,0.524,0.248,0.14],[0.756,0.523,0.248,0.14],[0.757,0.522,0.243,0.137],[0.758,0.52,0.233,0.131],[0.754,0.52,0.235,0.132],[0.748,0.522,0.234,0.132],[0.744,0.521,0.235,0.132],[0.745,0.518,0.233,0.131],[0.744,0.516,0.232,0.13],[0.743,0.516,0.233,0.131],[0.738,0.52,0.235,0.132],[0.737,0.524,0.235,0.132],[0.734,0.528,0.237,0.133],[0.73,0.526,0.236,0.133],[0.731,0.525,0.236,0.133],[0.732,0.525,0.235,0.132],[0.735,0.524,0.233,0.131],[0.736,0.527,0.233,0.131],[0.734,0.534,0.226,0.127],[0.735,0.536,0.227,0.128],[0.74,0.533,0.23,0.129],[0.746,0.53,0.234,0.132],[0.754,0.531,0.232,0.131],[0.765,0.534,0.23,0.13],[0.771,0.541,0.228,0.128],[0.774,0.539,0.221,0.124],[0.78,0.537,0.216,0.122],[0.778,0.534,0.224,0.126],[0.777,0.533,0.219,0.123],[0.774,0.534,0.222,0.125],[0.769,0.539,0.22,0.124],[0.767,0.537,0.224,0.126],[0.771,0.533,0.232,0.13],[0.773,0.529,0.232,0.13],[0.774,0.529,0.234,0.132],[0.771,0.532,0.239,0.135],[0.762,0.533,0.247,0.139],[0.756,0.531,0.248,0.14],[0.753,0.528,0.243,0.137],[0.75,0.527,0.239,0.135],[0.749,0.528,0.235,0.132],[0.746,0.531,0.237,0.133],[0.745,0.532,0.236,0.133],[0.747,0.53,0.238,0.134],[0.752,0.527,0.237,0.133],[0.76,0.525,0.236,0.133],[0.768,0.524,0.234,0.132],[0.775,0.526,0.234,0.131],[0.78,0.528,0.24,0.135],[0.789,0.524,0.246,0.138],[0.798,0.516,0.249,0.14],[0.805,0.511,0.25,0.141],[0.808,0.508,0.247,0.139],[0.808,0.51,0.246,0.138],[0.803,0.515,0.246,0.139],[0.794,0.516,0.239,0.134],[0.784,0.516,0.225,0.126],[0.779,0.516,0.231,0.13],[0.773,0.517,0.229,0.129],[0.766,0.518,0.232,0.13],[0.754,0.522,0.241,0.135],[0.743,0.526,0.242,0.136],[0.73,0.532,0.235,0.132],[0.716,0.541,0.234,0.132],[0.705,0.552,0.237,0.133],[0.698,0.556,0.238,0.134],[0.694,0.555,0.236,0.132],[0.692,0.557,0.241,0.135],[0.693,0.557,0.24,0.135],[0.696,0.559,0.247,0.139],[0.701,0.557,0.246,0.138],[0.698,0.557,0.248,0.139],[0.695,0.556,0.251,0.141],[0.697,0.553,0.232,0.131],[0.695,0.555,0.24,0.135],[0.696,0.553,0.255,0.143],[0.702,0.549,0.253,0.143],[0.711,0.543,0.25,0.14],[0.716,0.539,0.244,0.137],[0.723,0.536,0.241,0.136],[0.728,0.534,0.242,0.136],[0.731,0.533,0.237,0.134],[0.732,0.532,0.235,0.132],[0.735,0.533,0.233,0.131],[0.735,0.531,0.233,0.131],[0.738,0.532,0.233,0.131],[0.739,0.535,0.227,0.128],[0.741,0.535,0.226,0.127],[0.742,0.533,0.225,0.127],[0.744,0.532,0.226,0.127],[0.746,0.529,0.225,0.127],[0.752,0.53,0.224,0.126],[0.752,0.528,0.226,0.127],[0.754,0.527,0.223,0.125],[0.758,0.526,0.224,0.126],[0.763,0.527,0.223,0.126],[0.766,0.532,0.221,0.124],[0.77,0.537,0.217,0.122],[0.773,0.537,0.217,0.122],[0.777,0.537,0.217,0.122],[0.779,0.534,0.223,0.125],[0.781,0.533,0.218,0.122],[0.784,0.533,0.218,0.123],[0.785,0.535,0.218,0.123],[0.786,0.539,0.219,0.123]]};
+const FACES={pv_w:TRACK.pv_w[4],pv_m:TRACK.pv_m[4],pv_g:TRACK.pv_g[4],pv_gw:TRACK.pv_w[89],pv_gm:TRACK.pv_m[89],pv_gg:TRACK.pv_g[89],party_w:[.31,.33,.20,.18],party_m:[.49,.325,.18,.17],party_g:[.65,.43,.16,.15],portrait:[.47,.36,.22,.24],selfie_a:[.32,.395,.27,.25],selfie_b:[.70,.41,.21,.20],tattoo_face:[.71,.08,.26,.17],street_p1:[.67,.425,.035,.03],street_p2:[.785,.41,.035,.03]};
+const AR={pv:540/960,party:.75,portrait:.75,tattoo:.75,street:.75,selfie:1536/2752};
+const IMG={}; for(const k in AR){IMG[k]=new Image(); IMG[k].src=`img/${k}.jpg`;} IMG.pv_gap=new Image(); IMG.pv_gap.src='img/pv_gap.jpg'; AR.pv_gap=AR.pv;
+const DUR=10, FPS=12, GAP=[7.2,7.6];
+function faceAt(key,t){const tr=TRACK[key];if(!tr||t==null)return FACES[key];const f=Math.max(0,Math.min(tr.length-1,t*FPS));const i=Math.floor(f),j=Math.min(tr.length-1,i+1),u=f-i;return tr[i].map((v,k)=>v+(tr[j][k]-v)*u);}
+const BANNER=[.53,.215,.84,.055];
+const MEDIA=[
+ {id:'party',img:'pv',pos:'center 45%',dur:'0:10',faces:3,name:'Kids party'},
+ {id:'selfie',img:'selfie',pos:'center 35%',faces:2,name:'Park selfie'},
+ {id:'street',img:'street',pos:'center 55%',dur:'0:08',faces:2,name:'Street walk',flag:'Car plate visible'},
+ {id:'portrait',img:'portrait',pos:'center 30%',faces:1,name:'Portrait'},
+ {id:'tattoo',img:'tattoo',pos:'center 45%',faces:1,name:'Café'},
+ {id:'party2',img:'party',pos:'left 45%',dur:'0:21',faces:3,name:'Cake time'},
+ {id:'selfie2',img:'selfie',pos:'right 40%',faces:2,name:'Park 2'},
+ {id:'street2',img:'street',pos:'right 45%',faces:2,name:'Shop front',flag:'Car plate visible'},
+];
+const EMOJI=[['🌸','flowers'],['🌼','flowers'],['🌻','flowers'],['🌷','flowers'],['🌹','flowers'],['💐','flowers'],['🪷','flowers'],['🌺','flowers'],['🍋','citrus'],['🍊','citrus'],['🍑','citrus'],['🍓','citrus'],['💛','hearts'],['💜','hearts'],['🩷','hearts'],['🤍','hearts'],['💙','hearts'],['😎','faces'],['🙂','faces'],['😊','faces'],['🙈','faces'],['😇','faces'],['🥳','faces'],['🐻','animals'],['🐱','animals'],['🐶','animals'],['🐰','animals'],['🦊','animals'],['🐼','animals'],['🦋','animals'],['⭐','shapes'],['🌙','shapes'],['☁️','shapes'],['🌈','shapes'],['✨','shapes'],['🎀','party'],['🎈','party'],['🎂','party'],['🎁','party']];
+const EMOJI_NAMES={'🌸':'cherry blossom','🌼':'daisy','🌻':'sunflower','🌷':'tulip','🌹':'rose','💐':'bouquet','🪷':'lotus','🌺':'hibiscus','🍋':'lemon','🍊':'orange','🍑':'peach','🍓':'strawberry','💛':'yellow heart','💜':'purple heart','🩷':'pink heart','🤍':'white heart','💙':'blue heart','😎':'cool sunglasses','🙂':'smile','😊':'blush','🙈':'monkey','😇':'angel','🥳':'party face','🐻':'bear','🐱':'cat','🐶':'dog','🐰':'bunny','🦊':'fox','🐼':'panda','🦋':'butterfly','⭐':'star','🌙':'moon','☁️':'cloud','🌈':'rainbow','✨':'sparkles','🎀':'bow','🎈':'balloon','🎂':'cake','🎁':'gift'};
+
+/* ===================== state ===================== */
+const fresh=()=>({
+ screen:'welcome',stack:[],sheet:null,
+ protect:{faces:true,kids:true,text:false,plates:false},access:null,me:false,pro:false,defaultEmoji:'🌼',
+ projects:[],selection:[],quick:null,
+ people:[],bg:{count:0,cover:{t:'blur',v:'soft',s:12}},bgFaces:[],objects:[],gapFixed:false,
+ stripMeta:true,keepOrig:true,autoScan:true,haptics:true,audio:{maya:'off',addr:'off'},disguise:false,
+ undo:[],redo:[],hintSeen:false,size:1,playing:false,t:0,
+ studio:{id:null,tab:'emoji',apply:'person',match:true},scanStep:0,quality:'1080p',recipeSaved:false,recipes:['Everyone except me 🌼','Kids party'],
+ batch:null,live:{rec:false,sec:0,style:'🌸',rule:'except'},enroll:0,lab:{area:'face'},brush:{mode:'tap',pts:[],track:true},hold:true,
+ scen:{noFaces:false,exportFail:false},failedOnce:false,editorFrom:null,rosterFrom:null,searchQ:'',cat:'all',exportBatch:false,audioT:-1,
+ trial:true,plan:'year',onboarded:false,fixAnim:-1,expPct:0,
+});
+let S=fresh();
+const THEME={scan:'dark',noface:'dark',editor:'dark',blurlab:'dark',locked:'dark',brush:'dark',gaps:'dark',audio:'dark',live:'dark'};
+
+/* ===================== helpers ===================== */
+const clone=o=>JSON.parse(JSON.stringify(o));
+const SNAPK=['people','bg','bgFaces','objects','gapFixed'];
+const snap=()=>JSON.stringify(Object.fromEntries(SNAPK.map(k=>[k,S[k]])));
+function commit(){S.undo.push(snap());if(S.undo.length>60)S.undo.shift();S.redo=[];}
+function restore(j){Object.assign(S,JSON.parse(j));}
+const findP=id=>S.people.find(p=>p.id===id)||S.objects.find(o=>o.id===id)||(id==='bg'?S.bg:null);
+const isObj=id=>!!S.objects.find(o=>o.id===id);
+const grade=cv=>cv.t==='blur'?'sty':cv.t==='visible'?'':'pg';
+function cvLabel(cv){
+ if(!cv||cv.t==='visible')return'Visible';
+ if(cv.t==='emoji'||cv.t==='sticker')return cv.v;
+ return({blur:{soft:'Soft blur',motion:'Motion blur',frosted:'Frosted'},pixel:{mosaic:'Mosaic','8bit':'8-bit',fine:'Fine pixel'},shape:{},ai:{ghost:'Ghost',swap:'Face swap',erase:'Erase'}}[cv.t]||{})[cv.v]||({shape:'Solid'}[cv.t])||cv.t;
+}
+const laneColor=cv=>({emoji:'#E9548F',sticker:'#E9548F',blur:'#E0A030',pixel:'#3FAE6A',shape:'#8E9BFF',ai:'#B79CF2'}[cv.t]||'#666');
+function geo(img,W,H,oy){const IH=W/AR[img];return{img,W,H,IH,T:(H-IH)*oy};}
+function geoF(img,W,H,fy=.47,video=false){const IH=W/AR[img];const T=Math.max(H-IH,Math.min(0,H/2-fy*IH));return{img,W,H,IH,T,video};}
+function bx(b,g,G){const[cx,cy,w,h]=b;const ww=w*g*G.W,hh=h*g*G.IH;return{l:cx*G.W-ww/2,t:cy*G.IH+G.T-hh/2,w:ww,h:hh};}
+const pst=p=>`left:${p.l}px;top:${p.t}px;width:${p.w}px;height:${p.h}px`;
+function coverEl(b,cv,G,o={}){
+ const g=(o.grow||1.32)*(o.size||1);const p=bx(b,g,G);const st=pst(p);const id=o.id?` id="cv-${o.id}"`:'';const r=o.rect?' rect':'';
+ if(!cv||cv.t==='visible')return o.keep?`<i class="cv keep"${id} style="${st}"><em>${o.keep}</em></i>`:'';
+ if(cv.t==='emoji'||cv.t==='sticker')return `<i class="cv emoji"${id} style="${st};font-size:${Math.min(p.w,p.h)*.95}px">${cv.v}</i>`;
+ if(cv.t==='blur')return `<i class="cv blur ${cv.v}${r}"${id} style="${st};--b:${cv.s||12}px"></i>`;
+ if(cv.t==='pixel'){const n={mosaic:7,'8bit':4,fine:12}[cv.v]||7;const[cx,cy,w,h]=b;return `<i class="cv pixel${r}"${id} style="${st}"><canvas data-px="${G.video?'video':G.img}|${cx}|${cy}|${w*g}|${h*g}|${o.rect?n*3:n}"></canvas></i>`;}
+ if(cv.t==='shape')return `<i class="cv shape${r}"${id} style="${st};background:${cv.v}"></i>`;
+ if(cv.t==='ai'){
+  if(cv.v==='ghost')return `<i class="cv ghost"${id} style="${st}"></i>`;
+  if(cv.v==='erase')return `<i class="cv erase"${id} style="${st}"></i>`;
+  const[sx,sy]=FACES.selfie_b;const Z=3.4,ih=Z/AR.selfie;const px=(sx*Z-.5)/(Z-1)*100,py=(sy*ih-.5)/(ih-1)*100;
+  return `<i class="cv swap"${id} style="${st};background-image:url(img/selfie.jpg);background-size:${Z*100}% auto;background-position:${px}% ${py}%"></i>`;
+ }
+ return '';
+}
+function photo(G,layers,attrs=''){const media=G.video?`<video class="img" id="vid" src="img/party.mp4" playsinline preload="auto" style="top:${G.T}px;height:${G.IH}px;object-fit:fill"></video>`:`<div class="img" style="background-image:url(img/${G.img}.jpg);top:${G.T}px;height:${G.IH}px"></div>`;return `<div class="photo" ${attrs} style="width:${G.W}px;height:${G.H}px">${media}${layers}</div>`;}
+function peopleLayers(G,o={}){
+ let h='';const tt=o.t!=null?o.t:null;
+ for(const p of S.people){h+=coverEl(faceAt(p.face,tt),p.cover,G,{id:p.id,keep:p.isMe?'You':(o.keepAll&&p.cover.t==='visible'?p.name:null),size:S.size});}
+ if(o.objects!==false)for(const ob of S.objects){if(ob.on)h+=coverEl(ob.box,ob.cover,G,{id:ob.id,grow:1,rect:true});}
+ if(o.hot){for(const p of S.people){const q=bx(faceAt(p.face,tt),1.5,G);const w=Math.max(q.w,48),hh=Math.max(q.h,48);h+=`<b class="hot" id="hot-${p.id}" data-act="studio" data-id="${p.id}" style="left:${q.l+q.w/2-w/2}px;top:${q.t+q.h/2-hh/2}px;width:${w}px;height:${hh}px"></b>`;}
+  for(const ob of S.objects){if(!ob.on)continue;const q=bx(ob.box,1,G);h+=`<b class="hot" data-act="studio" data-id="${ob.id}" style="border-radius:10px;${pst({l:q.l,t:q.t,w:Math.max(q.w,44),h:Math.max(q.h,44)})}"></b>`;}}
+ return h;
+}
+function avatar(face,size=44,Z=3,extra=''){const[cx,cy]=FACES[face];const img=face.split('_')[0];if(img==='pv')Z=Math.max(Z,3.4);const ar=AR[img];const px=(cx*Z-.5)/(Z-1)*100;const ih=Z/ar;const py=(cy*ih-.5)/(ih-1)*100;return `<span class="av" style="width:${size}px;height:${size}px;background-image:url(img/${img}.jpg);background-size:${Z*100}% auto;background-position:${px}% ${py}%">${extra}</span>`;}
+const sbar=()=>`<div class="sbar"><span>9:41</span><span class="r"><svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="currentColor"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="9" rx="1" fill="currentColor"/><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor"/></svg><svg width="26" height="12" viewBox="0 0 26 12"><rect x=".5" y=".5" width="22" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2.5" y="2.5" width="16" height="7" rx="2" fill="currentColor"/><rect x="24" y="4" width="1.6" height="4" rx=".8" fill="currentColor" opacity=".45"/></svg></span></div>`;
+const tg=(on,act,data='')=>`<button class="tg ${on?'on':''}" data-act="${act}" ${data} aria-pressed="${on}"></button>`;
+const nav=(t,{left='back',li='chev',right='',center=false}={})=>`<div class="nav">${left?`<button class="ib" data-act="${left}" aria-label="Back">${ic(li,20)}</button>`:''}<div class="t ${center?'ctrT':''}">${t}</div>${right}</div>`;
+function fmt(t){const s=Math.floor(t);return `0:${String(s).padStart(2,'0')}`;}
+
+/* ===================== checks ===================== */
+function checks(){
+ const others=S.people.filter(p=>!p.isMe),unc=others.filter(p=>p.cover.t==='visible');
+ const bgOk=!S.bg.count||(S.bg.cover.t!=='visible'&&S.bgFaces.every(x=>x));
+ const p2=S.people.find(p=>p.id==='p2');
+ const sty=[...S.people.filter(p=>p.cover.t==='blur'),...(S.bg.count&&S.bg.cover.t==='blur'?[{name:'Background people'}]:[]),...S.objects.filter(o=>o.on&&o.cover.t==='blur')];
+ const me=S.people.find(p=>p.isMe);
+ const total=others.length+S.bg.count;
+ return [
+  {ok:unc.length===0&&bgOk,okT:total?`${total} people covered`:'No faces in this video',badT:unc.length?`${unc.map(p=>p.name).join(', ')} not covered`:'Some background people are visible',fix:'Review',act:'fixPeople'},
+  {ok:S.gapFixed||!p2||p2.cover.t==='visible',okT:'Covered in every frame',badT:'Person 2 uncovered for 0.4 s',fix:'Fix',act:'fixGap'},
+  {ok:sty.length===0,okT:'Every cover is privacy-grade',badT:`${sty[0]?sty[0].name:''} uses blur — can be reversed`,fix:'Use Pixel',act:'fixBlur'},
+  {ok:true,info:true,okT:me?(me.cover.t==='visible'?'You stay visible':'You’re covered too'):'No “You” marked — everyone treated the same'},
+  {ok:S.stripMeta,okT:'Location & camera info removed',badT:'Location is saved in the file',fix:'Remove',act:'fixMeta'},
+  {ok:S.audio.maya!=='off'&&S.audio.addr!=='off',okT:'Name & address muted in audio',badT:'“Maya” and an address are spoken',fix:'Bleep',act:'fixAudio'},
+ ];
+}
+const score=()=>checks().filter(c=>c.ok).length;
+
+/* ===================== scan defaults ===================== */
+function scanDefaults(){
+ const me=S.me;
+ S.people=[
+  {id:'you',name:me?'You':'Person 1',face:'pv_w',pct:92,isMe:me,cover:me?{t:'visible'}:{t:'emoji',v:S.defaultEmoji}},
+  {id:'p2',name:'Person 2',face:'pv_m',pct:70,cover:{t:'emoji',v:S.defaultEmoji}},
+  {id:'p3',name:'Person 3',face:'pv_g',pct:64,cover:{t:'blur',v:'soft',s:12}},
+ ];
+ S.bg={count:12,cover:{t:'blur',v:'soft',s:12}};S.bgFaces=Array(12).fill(true);
+ S.objects=[{id:'banner',name:'Banner text',box:BANNER,on:S.protect.text||true,cover:{t:'pixel',v:'mosaic'}}];
+ S.gapFixed=false;S.undo=[];S.redo=[];S.size=1;S.hintSeen=false;S.t=0;
+}
+function applyQuick(q){
+ for(const p of S.people){
+  if(q==='hideall')p.cover={t:'emoji',v:S.defaultEmoji};
+  else if(q==='exceptme')p.cover=p.isMe?{t:'visible'}:{t:'emoji',v:S.defaultEmoji};
+ }
+ if(q!=='screens'){S.bg.cover={t:'pixel',v:'mosaic'};S.bgFaces.fill(true);}
+ if(q==='screens'){S.people.forEach(p=>p.cover={t:'visible'});S.bg.cover={t:'visible'};}
+}
+
+/* ===================== screens ===================== */
+const SCR={};
+SCR.welcome=()=>{const G=geoF('pv',350,250,.47);return `${sbar()}<div class="body">
+ <div class="mt12">${photo(G,coverEl(FACES.pv_w,{t:'visible'},G,{keep:'You'})+coverEl(FACES.pv_m,{t:'emoji',v:'🌼'},G)+coverEl(FACES.pv_g,{t:'pixel',v:'mosaic'},G))}</div>
+ <h1 class="h1">Share the moment.<br><span class="acc">Not the faces.</span></h1>
+ <p class="sub">Blur, pixelate or cover anyone in photos and videos — right on your iPhone.</p>
+ <div class="pills"><span>No upload</span><span>No account</span><span>No ads</span></div>
+ <button class="link" style="text-align:left" data-act="sheet" data-s="how">${ic('face',16)} How face detection works</button>
+ <div class="grow"></div>
+ <button class="btn pri" data-go="protect">Get Started</button>
+ <button class="link" data-act="sample">Try with a sample video</button></div>`;};
+SCR.protect=()=>{const O=[['faces','people','Other people’s faces','Strangers in the background'],['kids','face','Kids','Family photos you post'],['text','text','Screens & text','Messages, name tags, signs'],['plates','pin','Plates & addresses','Cars, house numbers']];
+ return `${sbar()}<div class="body"><div class="row g12 mt8"><div class="steps"><i class="on"></i><i class="on"></i><i></i></div><button class="link" style="padding:8px 0" data-go="priming">Skip</button></div>
+ <h2 class="h2 mt16">What do you usually hide?</h2><p class="sub mt8">We’ll set up Smart Scan for you. Change it anytime.</p>
+ <div class="col g8 mt16">${O.map(([k,i,t,s])=>`<button class="opt ${S.protect[k]?'on':''}" data-act="protect" data-k="${k}"><span class="oi">${ic(i,20)}</span><span><b>${t}</b><small>${s}</small></span><span class="ck">${S.protect[k]?ic('check',14,3):''}</span></button>`).join('')}</div>
+ <div class="grow"></div><button class="btn pri" data-go="priming">Continue</button></div>`;};
+SCR.priming=()=>`${sbar()}<div class="body ctr"><div class="row g12 mt8" style="width:100%"><div class="steps"><i class="on"></i><i class="on"></i><i class="on"></i></div></div>
+ <div class="perm mt24">${['party','selfie','street','portrait','tattoo','party'].map((m,i)=>`<span class="${i===0||i===4?'on':''}" style="background-image:url(img/${m}.jpg)"></span>`).join('')}</div>
+ <h2 class="h2 mt24">Pick only what you edit</h2><p class="sub mt8">Blurit works with just the photos you choose. You can add more anytime.</p>
+ <div class="nexti mt16">${ic('lock',22)}<div><b>Next, iOS will ask</b><br><span class="cap">Choose <b>Limit Access</b> to pick photos, or allow all. Your photos never leave this iPhone.</span></div></div>
+ <div class="grow"></div><button class="btn pri" data-act="askPhotos">Continue</button><button class="link" data-act="access" data-v="later">Maybe later</button></div>`;
+SCR.denied=()=>`${sbar()}<div class="body ctr" style="padding-top:60px"><div class="big-ic" style="background:var(--fill);color:var(--muted)">${ic('lock',36)}</div>
+ <h2 class="h2 mt24">Blurit can’t see your photos</h2><p class="sub mt8">Allow access in Settings, or bring in a file instead. Your photos never leave this iPhone.</p>
+ <div class="grow"></div><button class="btn pri" data-act="access" data-v="settings">Open Settings</button><button class="btn sec mt8" data-act="files">Import from Files</button><button class="link" data-act="sample">Try a sample video</button></div>`;
+SCR.home=()=>{
+ const empty=!S.projects.length;
+ const quick=`<div class="chips">${[['exceptme','people','Keep me only'],['hideall','face','Hide all faces'],['screens','text','Blur screens & text']].map(([v,i,t])=>`<button class="chip" data-act="quick" data-v="${v}">${ic(i,16)} ${t}</button>`).join('')}</div>`;
+ const live=`<button class="lc" data-go="live">${ic('cam',22)}<span style="flex:1"><b>Live Cam</b><small>Record with covers already on</small></span><span class="tag">New</span></button>`;
+ if(empty){const G=geoF('pv',350,230,.47);return `${sbar()}<div class="body"><div class="row sbw mt8"><span class="logo">Blurit</span><button class="ib" data-go="settings" aria-label="Settings">${ic('gear',20)}</button></div>
+ <div class="mt16">${photo(G,coverEl(FACES.pv_w,{t:'visible'},G,{keep:'You'})+coverEl(FACES.pv_m,{t:'emoji',v:S.defaultEmoji},G)+coverEl(FACES.pv_g,{t:'pixel',v:'mosaic'},G))}</div>
+ <h2 class="h2 mt16">Cover your first video</h2><p class="sub mt8">Pick a photo or video — we’ll find the faces for you.</p>
+ <button class="btn pri mt16" data-go="import">${ic('plus',20,2.5)} Choose Photo or Video</button><button class="btn sec mt8" data-act="sample">Try with a sample</button>
+ <div class="sect">Quick hides</div>${quick}<div class="mt16">${live}</div></div>`;}
+ return `${sbar()}<div class="body"><div class="row sbw mt8"><span class="logo">Blurit</span><button class="ib" data-go="settings" aria-label="Settings">${ic('gear',20)}</button></div>
+ <div class="tiles mt16"><button class="tile pri" data-go="import">${ic('video',26)}<b>Video</b><small>Track & cover</small></button><button class="tile" data-go="import">${ic('grid',26)}<b>Photos</b><small>One or many</small></button></div>
+ <div class="mt12">${quick}</div>
+ <div class="row sbw mt24"><div><b style="font-size:20px">Recent</b><div class="cap">Re-edit anytime — covers stay editable</div></div><button class="link" style="padding:0" data-act="batchStart">Batch</button></div>
+ <div class="proj mt12">${S.projects.map((p,i)=>`<button class="pc" data-act="openProject" data-i="${i}"><span class="th" style="background:url(img/${p.img}.jpg) center 45%/cover">${p.thumb||''}<span class="state ${p.state==='Safe'?'ok':p.state==='Draft'?'draft':'warn'}">${p.state==='Safe'?ic('check',12,3):''} ${p.state}</span>${p.dur?`<span class="dur">${ic('video',12)} ${p.dur}</span>`:''}</span><b>${p.name}</b><small>${p.meta}</small></button>`).join('')}</div>
+ <div class="mt16">${live}</div></div>`;};
+SCR.import=()=>{
+ const n=S.selection.length;
+ const qn={exceptme:'Keep me only',hideall:'Hide all faces',screens:'Blur screens & text'}[S.quick];
+ return `${sbar()}${nav(n?`${n} selected`:'Choose media',{left:'back',li:'x',center:true,right:'<span style="width:40px"></span>'})}<div class="body tight">
+ ${S.quick?`<div class="qbanner mb8">${ic('wand',18)} Quick hide: ${qn} — pick a video</div>`:''}
+ <div class="chips mb8">${['People','Today','Videos','Screenshots','Favourites'].map((c,i)=>`<button class="chip sm ${i===0?'on':''}" data-act="toastOnly" data-m="${c} filter">${i===0?ic('people',14)+' ':''}${c}</button>`).join('')}</div>
+ ${S.access==='limited'?`<div class="limited mb8"><span>Showing 8 items you shared</span><button class="acc" style="font-weight:600" data-act="toastOnly" data-m="iOS photo picker would open">Add more</button></div>`:''}
+ <div class="pgrid"><button class="camt" data-go="live" aria-label="Camera">${ic('cam',28)}</button>${MEDIA.map(m=>{const k=S.selection.indexOf(m.id);return `<button class="${k>=0?'sel':''}" style="background-image:url(img/${m.img}.jpg);background-position:${m.pos}" data-act="pick" data-id="${m.id}" aria-label="${m.name}"><span class="num">${k>=0?k+1:''}</span><span class="fc">${ic('face',11)} ${m.faces}</span>${m.dur?`<span class="dv">${m.dur}</span>`:''}</button>`;}).join('')}</div>
+ <div class="grow"></div></div>
+ <div class="bottombar"><button class="btn sec sm" data-act="files" style="height:52px">${ic('file',18)} Files</button><button class="btn pri ${n?'':'dis'}" data-act="startScan">${n?(n>1?`Scan ${n} items`:`Scan 1 ${MEDIA.find(m=>m.id===S.selection[0]).dur?'video':'photo'}`):'Select items'}</button></div>`;};
+SCR.scan=()=>{
+ const st=S.scanStep,G=geoF('pv',362,330,.42);
+ let dots='';
+ if(!S.scen.noFaces){['pv_w','pv_m','pv_g'].slice(0,Math.min(st,3)).forEach(f=>{const p=bx(FACES[f],1.3,G);dots+=`<i class="cv dots" style="${pst(p)}"></i>`;});
+  if(st>=4){const p=bx(BANNER,1,G);dots+=`<i class="cv dots" style="${pst(p)};border-radius:8px"></i>`;}}
+ const faces=S.scen.noFaces?0:Math.min(st,3);
+ return `${sbar()}${nav('Scanning…',{left:'cancelScan',li:'x'})}<div class="body tight">
+ ${photo(G,dots+'<i class="scanline"></i>')}
+ <div class="prog mt16"><i style="width:${Math.min(100,st/6*100)}%"></i></div>
+ <div class="row sbw mt8 cap"><span>Frame ${Math.min(300,Math.round(st/6*300))} of 300 · on this iPhone</span><span>About ${Math.max(0,6-st)*3} s left</span></div>
+ <div class="lrows mt12">
+  <div class="lrow">${ic('face',18)} ${faces} face${faces===1?'':'s'}<small>${faces?Math.min(faces,3)+' people':'—'}</small></div>
+  ${st>=4?`<div class="lrow">${ic('text',18)} 1 text area<small>Banner</small></div>`:`<div class="lrow sk">${ic('text',18)} Checking screens & signs…</div>`}
+  ${st>=5?`<div class="lrow">${ic('people',18)} ${S.scen.noFaces?'No background people':'12 background people'}<small>${S.scen.noFaces?'':'under 5%'}</small></div>`:''}
+ </div><div class="grow"></div><button class="btn sec" data-act="scanBg" style="margin-bottom:34px">Run in Background</button></div>`;};
+SCR.noface=()=>`${sbar()}${nav('Scan finished',{left:'home',li:'x'})}<div class="body ctr">
+ <div class="big-ic mt24" style="border:2px dashed var(--fill2);color:var(--muted)">${ic('face',36)}</div>
+ <h2 class="h2 mt24">No faces found</h2><p class="sub mt8">Faces may be too small, turned away or in the dark — or this video doesn’t need covers.</p>
+ <div class="col g8 mt24" style="width:100%"><button class="btn pri" data-act="drawFromNoFace">${ic('brush',18)} Draw a Cover</button><button class="btn sec" data-act="textOnly">${ic('text',18)} Cover Text & Signs</button></div>
+ <div class="warnote mt24" style="text-align:left">${ic('warn',16)}<div><b>If a scan fails</b> you’ll see “Couldn’t read this video” with <b>Try Again</b> and <b>Convert to MP4</b>.</div></div></div>`;
+SCR.roster=()=>{
+ const fromEd=S.rosterFrom==='editor';const bgOn=S.bg.cover.t!=='visible';
+ const segFor=(p)=>{const v=p.cover.t==='visible'?'vis':p.cover.t==='emoji'&&!['blur'].includes(p.cover.t)?'emo':p.cover.t==='blur'?'blur':'oth';return `<div class="mseg"><button class="${v==='vis'?'on':''}" data-act="setP" data-id="${p.id}" data-v="vis">Visible</button><button class="${v==='emo'?'on':''}" data-act="setP" data-id="${p.id}" data-v="emo">${S.defaultEmoji}</button><button class="${v==='blur'?'on':v==='oth'?'on':''}" data-act="setP" data-id="${p.id}" data-v="blur">${v==='oth'?cvLabel(p.cover).replace(' blur',''):'Blur'}</button></div>`;};
+ const n=S.people.filter(p=>p.cover.t!=='visible').length+(bgOn?S.bg.count:0)+S.objects.filter(o=>o.on).length;
+ return `${sbar()}${nav(fromEd?'People':`Found ${S.people.length+S.bg.count+S.objects.length} things`,{left:fromEd?'back':'home',li:fromEd?'chev':'x',center:true,right:'<span style="width:40px"></span>'})}<div class="body" style="padding-top:0">
+ <div class="sect" style="margin-top:4px">People · choose for each</div>
+ <div class="col g8">${S.people.map(p=>`<div class="pr ${p.isMe?'me':''}">${avatar(p.face,46)}<div class="nm"><b>${p.isMe?'You':p.name}</b><small>in ${p.pct}% of frames</small>${!S.people.some(q=>q.isMe)&&p.id==='you'?'<br><button class="meq" data-act="markMe" data-id="you">This is me?</button>':''}</div>${segFor(p)}</div>`).join('')}
+ <button class="pr" data-go="crowd" style="width:100%;text-align:left"><span class="av2">+${S.bg.count}</span><div class="nm"><b>Background people</b><small>${S.bgFaces.filter(x=>x).length} of ${S.bg.count} covered · tap to review</small></div>${ic('chevr',20)}</button></div>
+ <div class="chips mt12"><button class="chip ${S.people.every(p=>p.isMe?p.cover.t==='visible':p.cover.t!=='visible')&&S.people.some(p=>p.isMe)?'on':''}" data-act="rule" data-v="exceptme">${ic('people',16)} Hide everyone except me</button><button class="chip" data-act="rule" data-v="all">Hide all</button></div>
+ <div class="sect">Other</div><div class="list">${S.objects.map(o=>`<div class="li">${ic('text',20)} ${o.name}<span class="v">${o.on?cvLabel(o.cover):'Off'} ${tg(o.on,'objToggle',`data-id="${o.id}"`)}</span></div>`).join('')}</div>
+ <div class="grow" style="min-height:20px"></div>
+ <button class="btn pri" data-act="${fromEd?'back':'coverAll'}">${fromEd?'Done':`Cover ${n} Items`}</button></div>`;};
+SCR.crowd=()=>{const F=['selfie_a','selfie_b','portrait','tattoo_face','party_m','party_g','selfie_b','portrait','selfie_a','party_g','tattoo_face','party_m'];const all=S.bgFaces.every(x=>x);
+ return `${sbar()}${nav('Background people',{right:`<button class="btn pri xs" data-act="back">Done</button>`})}<div class="body">
+ <div class="row sbw mt8"><span class="cap">12 people in under 5% of frames</span><button class="chip sm ${all?'on':''}" data-act="crowdAll">${all?'All covered':'Cover all 12'}</button></div>
+ <div class="fgrid mt16">${F.map((f,i)=>`<button data-act="crowdFace" data-i="${i}" aria-label="Background person ${i+1}">${avatar(f,64,f==='party_m'||f==='party_g'?3:2.4,S.bgFaces[i]?'<i class="blurov"></i>':'')}<span class="st ${S.bgFaces[i]?'b':'v'}">${S.bgFaces[i]?ic('eyeoff',11,2.5):ic('eye',11,2.5)}</span></button>`).join('')}</div>
+ <p class="cap mt16 ctr">Tap a face to keep it visible — a friend in the back, for example.</p>
+ <div class="list mt16"><div class="li">Cover style<span class="v">${cvLabel(S.bg.cover)}</span></div></div></div>`;};
+SCR.editor=()=>{
+const G=geoF('pv',362,330,.42,true);window._G=G;
+ const covered=[...S.people.filter(p=>p.cover.t!=='visible'),...S.objects.filter(o=>o.on)];
+ const lanes=covered.slice(0,3),more=covered.length-lanes.length;
+ const gapOn=!S.gapFixed&&S.people.find(p=>p.id==='p2'&&p.cover.t!=='visible');
+ const lane=c=>`<div class="trk"><em>${c.cover.t==='emoji'||c.cover.t==='sticker'?c.cover.v+' ':''}${c.isMe?'You':c.name.replace('Person ','P')}</em><span class="bar" style="left:0;width:100%;background:${laneColor(c.cover)}"></span>${c.id==='p2'&&gapOn?'<span class="gap" style="left:72%;width:4%"></span>':''}</div>`;
+ return `${sbar()}<div class="nav"><button class="ib" data-act="leaveEditor" aria-label="Back">${ic('chev',20)}</button><div class="t">Kids party</div><button class="btn pri sm" data-go="check">Export</button><button class="ib" data-act="sheet" data-s="more" aria-label="More">${ic('more',20)}</button></div>
+ <div style="padding:0 14px">${photo(G,peopleLayers(G,{hot:true,t:S.t})+(S.hintSeen?'':'<span class="hint">Tap a face to change its cover</span>'),'data-hold="1" id="edPhoto"')}</div>
+ <div class="playrow"><button class="ib sm" data-act="play" aria-label="${S.playing?'Pause':'Play'}">${ic(S.playing?'pause':'play',16)}</button><span class="tm" id="tm">${fmt(S.t)}</span><span>/ 0:10</span><span class="grow"></span><span class="cap" style="margin-right:4px">Hold video to compare</span><button class="ib sm ${S.undo.length?'':'dis'}" data-act="undo" aria-label="Undo">${ic('undo',16)}</button><button class="ib sm ${S.redo.length?'':'dis'}" data-act="redo" aria-label="Redo">${ic('redo',16)}</button></div>
+ <div class="tl" id="tl"><div class="tlh"><span>0:00</span><span>0:05</span><span>0:10</span></div><div class="trk"><em>Video</em><span class="clip"></span></div>${lanes.map(lane).join('')}${more>0?`<button class="trk more" style="display:block;width:calc(100% - 62px)" data-act="sheet" data-s="covers"><span>+${more} more cover${more>1?'s':''}</span></button>`:''}<i class="ph" id="ph" style="left:calc((100% - 78px) * ${S.t/DUR})"></i></div>
+ ${gapOn?`<div class="warnbar">${ic('warn',16)} Person 2 uncovered for 0.4 s<button class="btn xs" data-go="gaps">Fix</button></div>`:''}
+ <div class="grow"></div>
+ <div class="ebar"><button data-act="addCover">${ic('plus',22)}Add cover</button><button class="on" data-act="sheet" data-s="covers">${ic('layers',22)}Covers · ${covered.length}</button><button data-act="sheet" data-s="size">${ic('resize',22)}Size</button><button data-act="sheet" data-s="more">${ic('more',22)}More</button></div>`;};
+SCR.blurlab=()=>{
+ const p=findP(S.studio.id)||S.people[2];const cv=p.cover.t==='blur'?p.cover:{t:'blur',v:'soft',s:12};
+ const f=p.face?FACES[p.face]:p.box;const G=geoF('pv',362,300,f[1]);
+ return `${sbar()}${nav('Blur',{left:'back',li:'x',right:`<button class="btn pri xs" data-act="back">Done</button>`})}<div class="body tight">
+ ${photo(G,coverEl(f,cv,G,{id:'lab',rect:!p.face,grow:p.face?1.32:1}),'data-hold="1"')}
+ <div class="leg mt12"><span><i class="gd pg"></i> Privacy-grade</span><span><i class="gd sty"></i> Stylistic</span><span style="margin-left:auto">Hold to compare</span></div>
+ <div class="sgrid" style="grid-template-columns:repeat(4,1fr)">${[['soft','Soft'],['motion','Motion'],['frosted','Frosted']].map(([v,n])=>`<button class="${cv.v===v&&p.cover.t==='blur'?'on':''}" data-act="setCover" data-t="blur" data-v="${v}"><span class="prv" style="background:radial-gradient(circle,#bbb,#555)"></span><small><i class="gd sty"></i> ${n}</small></button>`).join('')}<button data-act="setCover" data-t="pixel" data-v="mosaic"><span class="prv" style="background:conic-gradient(#999 25%,#555 0 50%,#999 0 75%,#555 0) 0 0/10px 10px;border-radius:8px"></span><small><i class="gd pg"></i> Pixel</small></button></div>
+ <div class="srow mt8"><button class="ib sm" data-act="labReset" aria-label="Reset">${ic('undo',16)}</button><input type="range" min="2" max="30" value="${cv.s||12}" data-in="blurS"><span class="val" id="bv">${cv.s||12}</span></div>
+ <div class="seg mt8">${[['face','Face'],['head','Head'],['body','Whole body']].map(([v,n])=>`<button class="${S.lab.area===v?'on':''}" data-act="labArea" data-v="${v}">${n}</button>`).join('')}</div>
+ <div class="warnote mt12">${ic('warn',16)}<div>Blur can be undone by AI face restoration. For real privacy use Pixel, Emoji or Shape.<br><button class="link" style="padding:6px 0 0;text-align:left;color:inherit;text-decoration:underline" data-act="labToPixel">Switch to Pixel</button></div></div></div>`;};
+SCR.locked=()=>{const p=findP(S.studio.id)||S.people[1];const G=geoF('pv',362,300,.42);
+ const layers=peopleLayers(G,{t:.4}).replace(new RegExp(`<i class="cv [^"]*" id="cv-${p.id}"[^>]*>(?:[^<]*|<canvas[^>]*></canvas>)</i>`),'')+coverEl(FACES[p.face]||p.box,{t:'ai',v:S.lockPrev||'ghost'},G);
+ return `${sbar()}${nav('',{left:'back',li:'x'})}<div class="body tight">${photo(G,layers)}
+ <div class="card mt12" style="background:#1C1C1E"><span class="tag">Pro</span><h2 class="h2 mt8">AI covers</h2><p class="sub mt8">Replace a face with a made-up one, turn it into a ghost, or erase the person. Preview is free.</p>
+ <div class="sgrid" style="grid-template-columns:repeat(3,1fr)">${[['ghost','👻','Ghost'],['swap','🧑','Face swap'],['erase','🫥','Erase']].map(([v,e,n])=>`<button class="${(S.lockPrev||'ghost')===v?'on':''}" data-act="lockPrev" data-v="${v}">${e}<small>${n}</small></button>`).join('')}</div>
+ <button class="btn pri mt16" data-go="paywall">Try 7 Days Free</button><button class="link" data-act="back">Keep current cover</button></div></div>`;};
+SCR.paywall=()=>`${sbar()}<div class="body"><div class="row sbw"><button class="ib" data-act="back" aria-label="Close">${ic('x',20)}</button><button class="link" style="padding:0" data-act="toastOnly" data-m="No purchases to restore">Restore</button></div>
+ <h2 class="h2 mt16">Cover anything,<br>any way</h2>
+ <div class="mt12">${[['spark','AI covers — ghost, face swap, erase'],['audio','Audio privacy & voice disguise'],['layers','Batch videos & recipes'],['cam','Live Cam & 4K export']].map(([i,t])=>`<div class="perk">${ic(i,22)} ${t}</div>`).join('')}</div>
+ <div class="row sbw card mt16" style="padding:12px 16px"><span style="font-size:16px">Free trial enabled</span>${tg(S.trial,'trial')}</div>
+ <div class="col g8 mt12"><button class="plan ${S.plan==='year'?'on':''}" data-act="plan" data-v="year"><b>Yearly</b><small>${S.trial?'7 days free, then ':''}$29.99/year · $2.50/mo</small><span class="tag">Best value</span></button><button class="plan ${S.plan==='month'?'on':''}" data-act="plan" data-v="month"><b>Monthly</b><small>${S.trial?'7 days free, then ':''}$4.99/month</small></button></div>
+ <div class="grow"></div><button class="btn pri mt16" data-act="buy">${S.trial?'Start Free Trial':'Subscribe'}</button>
+ <p class="cap ctr" style="margin:10px 0 6px">${S.trial?'7 days free, then ':''}${S.plan==='year'?'$29.99/year':'$4.99/month'}. Cancel anytime in Settings.</p>
+ <div class="legal"><button data-act="toastOnly" data-m="Terms of Use">Terms</button><button data-act="toastOnly" data-m="Privacy Policy">Privacy</button></div></div>`;
+SCR.brush=()=>{const G=geoF('pv',362,440,.45);const m=S.brush;
+ let ov='';if(m.mode==='tap'&&m.pts.length){const[x,y]=m.pts[0];ov=`<span class="mask" style="left:${x-46}px;top:${y-28}px;width:92px;height:56px"></span><span class="tapdot" style="left:${x}px;top:${y}px"></span>`;}
+ if(m.mode==='brush'){ov=m.pts.map(([x,y])=>`<i class="bdot" style="left:${x-14}px;top:${y-14}px;width:28px;height:28px"></i>`).join('');}
+ const last=m.pts[m.pts.length-1];const loupe=last?`<span class="loupe" style="background-image:url(img/pv.jpg);background-size:${G.W*3}px ${G.IH*3}px;background-position:${-(last[0]*3-43)}px ${-((last[1]-G.T)*3-43)}px"></span>`:'';
+ return `${sbar()}${nav('Cover anything',{left:'back',li:'x',center:true,right:`<button class="btn pri xs ${m.pts.length?'':'dis'}" data-act="brushDone">Done</button>`})}<div class="body tight">
+ ${photo(G,peopleLayers(G,{t:.4})+ov+loupe+(m.pts.length?'':'<span class="hint">Tap anything — a sign, a badge, a tattoo</span>'),'id="brushPhoto"')}
+ <div class="seg mt12">${[['tap','tap','Tap'],['brush','brush','Brush'],['erase','erase','Erase']].map(([v,i,n])=>`<button class="${m.mode===v?'on':''}" data-act="bmode" data-v="${v}">${ic(i,15)} ${n}</button>`).join('')}</div>
+ <div class="srow">Track through the video${tg(m.track,'btrack')}</div></div>`;};
+SCR.gaps=()=>{const G=geoF('pv_gap',362,330,.42);const fixing=S.fixAnim>=0;
+ const layers=peopleLayers(G,{t:7.4}).replace(/<i class="cv [^"]*" id="cv-p2"[^>]*>(?:[^<]*|<canvas[^>]*><\/canvas>)<\/i>/,'')+(S.gapFixed?coverEl(faceAt('pv_m',7.4),S.people.find(p=>p.id==='p2').cover,G):`<i class="cv predict" style="${pst(bx(faceAt('pv_m',7.4),1.5,G))}"></i>`);
+ const fr=[0,1,2,3,4,5,6,7].map(i=>{const gap=(i===3||i===4)&&!S.gapFixed&&!(fixing&&S.fixAnim>=(i-2));return `<span class="${gap?'gap':''}" style="background-image:url(img/${i===3||i===4?'pv_gap':'pv'}.jpg);background-position:${44+i*2}% 44%;background-size:260% auto"></span>`;}).join('');
+ return `${sbar()}${nav('Fix Person 2',{left:'back',li:'x',center:true,right:`<button class="btn pri xs" data-act="back">Done</button>`})}<div class="body tight">
+ ${photo(G,layers)}
+ <div class="frames mt16">${fr}${S.gapFixed?'':'<i class="hs" style="left:36.5%"></i><i class="he" style="left:61.5%"></i>'}</div>
+ <p class="cap mt8">${S.gapFixed?'Every frame is covered.':'5 frames without a cover · 0:07.2 – 0:07.6 · Person 2 moved while clapping'}</p>
+ <div class="srow">Hold cover over short gaps${tg(S.hold,'hold')}</div>
+ <div class="grow"></div>
+ <button class="btn pri ${S.gapFixed||fixing?'dis':''}" data-act="autofix">${ic('wand',18)} ${S.gapFixed?'Fixed':'Auto-fix 5 Frames'}</button>
+ <button class="btn sec mt8" data-act="addCover" style="margin-bottom:34px">${ic('brush',18)} Draw Cover on Frame</button></div>`;};
+SCR.audio=()=>{const H=[10,18,26,34,22,30,40,24,14,32,42,28,18,26,36,16,12,22,30,14,10,20,28,18];const pt=S.audioT;
+ const rng={maya:[9,12],addr:[17,20]};
+ const bars=H.map((h,i)=>{const inM=i>=rng.maya[0]&&i<=rng.maya[1]&&S.audio.maya!=='off',inA=i>=rng.addr[0]&&i<=rng.addr[1]&&S.audio.addr!=='off';const played=pt>=0&&i/H.length<=pt;return `<i style="height:${(inM&&S.audio.maya==='mute')||(inA&&S.audio.addr==='mute')?4:h}px" class="${inM||inA?'bl':played?'pl':''}"></i>`;}).join('');
+ const mk=(k,txt)=>`<mark class="${S.audio[k]}">${S.audio[k]==='bleep'?'▮▮▮▮':txt}</mark>`;
+ const seg=k=>`<div class="mseg">${['off','bleep','mute'].map(v=>`<button class="${S.audio[k]===v?'on':''}" data-act="audioSet" data-k="${k}" data-v="${v}">${v[0].toUpperCase()+v.slice(1)}</button>`).join('')}</div>`;
+ return `${sbar()}${nav('Audio',{left:'back',center:true,right:`<button class="btn pri xs" data-act="back">Done</button>`})}<div class="body tight">
+ <div class="wave mt8">${bars}</div>
+ <div class="row g8 mt12"><button class="ib sm" data-act="audioPlay" aria-label="Preview">${ic(pt>=0?'pause':'play',16)}</button><span class="cap">Preview with bleeps</span><div class="prog grow"><i style="width:${Math.max(0,pt)*100}%"></i></div></div>
+ <div class="trans mt12">“Happy birthday ${mk('maya','Maya')}! Look at you, ${mk('maya','Maya')}… we’re at ${mk('addr','12 Oak Street')}”</div>
+ <div class="sect">Found in speech</div>
+ <div class="list"><div class="li"><span>Maya<br><small class="cap">Name · said 2×</small></span><span class="v">${seg('maya')}</span></div><div class="li"><span>12 Oak Street<br><small class="cap">Address</small></span><span class="v">${seg('addr')}</span></div></div>
+ <div class="srow mt8">Disguise voices <span class="row g8"><span class="tag">Pro</span>${tg(S.disguise,'disguise')}</span></div></div>`;};
+SCR.check=()=>{const C=checks(),sc=C.filter(c=>c.ok).length;const t=sc===6?'Safe to share':sc>=4?'Almost safe':'Needs attention';
+ const G=geoF('pv',350,170,.45);
+ return `${sbar()}${nav('Privacy Check',{left:'back',li:'chev',center:true,right:'<span style="width:40px"></span>'})}<div class="body" style="padding-top:0">
+ ${photo(G,peopleLayers(G,{t:.4}))}
+ <div class="score mt12"><b>${t}</b><small>${sc} of 6 checks passed</small><div class="segb">${C.map(c=>`<i class="${c.ok?'on':''}"></i>`).join('')}</div></div>
+ <div class="col g8 mt12">${C.map(c=>c.ok?`<div class="chk ${c.info?'info':'ok'}"><span class="ci">${c.info?ic('people',14):ic('check',14,3)}</span>${c.okT}</div>`:`<div class="chk bad"><span class="ci">${ic('warn',14,2.5)}</span>${c.badT}<button class="btn pri xs" data-act="${c.act}">${c.fix}</button></div>`).join('')}</div>
+ <p class="cap ctr mt12">${ic('lock',12)} Checked on this iPhone. Nothing was uploaded.</p>
+ <div class="grow"></div><button class="btn pri mt8" data-go="export">${sc===6?'Export':'Export Anyway'}</button></div>`;};
+SCR.export=()=>{const G=geoF('pv',362,260,.45);return `${sbar()}${nav('Export',{center:true,right:'<span style="width:40px"></span>'})}<div class="body tight">
+ ${photo(G,peopleLayers(G,{t:.4}))}
+ <div class="list mt12"><button class="li" data-act="cycleQ">${S.exportBatch?'Photos & videos':'Video'} · ${S.quality} · 30 fps<span class="v">≈ ${S.quality==='4K'?'96':S.quality==='720p'?'12':'24'} MB ${ic('chevr',16)}</span></button>
+ <div class="li">Remove location & camera info<span class="v">${tg(S.stripMeta,'stripMeta')}</span></div><div class="li">Keep original in Photos<span class="v">${tg(S.keepOrig,'keepOrig')}</span></div></div>
+ <div class="grow"></div><button class="btn pri" data-act="doExport">Save to Photos</button>
+ <div class="row g8 mt8" style="margin-bottom:34px"><button class="btn sec" data-act="share">${ic('share',18)} Share</button><button class="btn sec" data-act="toastOnly" data-m="Opens Instagram Stories">Story</button></div></div>`;};
+SCR.exporting=()=>{const G=geoF('pv',362,300,.45);return `${sbar()}${nav(S.exportBatch?'Saving items':'Exporting',{left:'',center:true})}<div class="body tight">
+ ${S.exportBatch?'':photo(G,peopleLayers(G,{t:.4}))}
+ <div class="card mt16"><b style="font-size:18px">${S.exportBatch?'Saving '+S.batch.items.length+' items…':'Exporting…'}</b><div class="prog mt12"><i id="xbar" style="width:${S.expPct}%"></i></div>
+ <div class="row sbw cap mt8"><span id="xtxt">${Math.round(S.expPct)}% · ${S.quality}</span><span>About ${Math.max(1,Math.round((100-S.expPct)/40))} s</span></div>
+ <div class="chk ok mt12" style="min-height:0;font-size:14px"><span class="ci">${ic('check',12,3)}</span>Covers${S.stripMeta?' and location removal are':' are'} applied to every frame</div></div>
+ <div class="grow"></div><button class="btn sec" data-act="cancelExport">Cancel</button><button class="link" data-act="keepEditing" style="margin-bottom:24px">Keep editing — we’ll notify you</button></div>`;};
+SCR.failed=()=>`${sbar()}<div class="body ctr" style="padding-top:70px"><div class="big-ic" style="background:#FFF1DE;color:#9A5200">${ic('warn',38)}</div>
+ <h2 class="h2 mt24">Couldn’t save the video</h2><p class="sub mt8">Not enough space on this iPhone. Free up 180 MB or export a smaller file. Your edits are safe.</p>
+ <div class="grow"></div><button class="btn pri" data-act="fail720">Export at 720p · 12 MB</button><button class="btn sec mt8" data-act="failRetry">Try Again</button><button class="link" data-act="failBack">Back to Editor</button></div>`;
+SCR.done=()=>{const C=checks();const cov=S.people.filter(p=>p.cover.t!=='visible').length+(S.bg.cover.t!=='visible'?S.bg.count:0);
+ const parts=S.exportBatch?[`${S.batch.items.length} items saved`]:[`${cov} people covered`,S.stripMeta?'location removed':'',S.audio.maya!=='off'?'names bleeped':''].filter(Boolean);
+ return `${sbar()}<div class="body ctr" style="padding-top:70px"><div class="big-ic" style="background:#E3F3E8;color:#2E7348;animation:pop .4s">${ic('check',44,3)}</div>
+ <h2 class="h2 mt24">Saved — and safe to share</h2><p class="sub mt8">${parts.join(' · ')}</p>
+ ${S.exportBatch?'':`<div class="card mt24" style="width:100%"><b>Save as recipe?</b><p class="cap" style="margin:4px 0 12px">“${S.people.find(p=>p.isMe)?'Everyone except me':'Everyone'} → ${S.defaultEmoji} · ${S.audio.maya!=='off'?'bleep names':'audio untouched'}”</p><button class="btn ${S.recipeSaved?'sec':'pri'} sm" style="margin:0 auto" data-act="saveRecipe">${S.recipeSaved?ic('check',16,3)+' Saved to Quick hides':'Save Recipe'}</button></div>`}
+ <div class="grow"></div><button class="btn pri" data-act="share">${ic('share',18)} Share</button><button class="link" data-act="finish">Back to Home</button></div>`;};
+SCR.batch=()=>{const B=S.batch;const flagged=B.items.filter(m=>m.flag&&!B.reviewed[m.id]);const vids=B.items.filter(m=>m.dur).length;
+ return `${sbar()}${nav(`${B.items.length} items · ${vids} video${vids===1?'':'s'}`,{left:'back',li:'x',center:true,right:'<span style="width:40px"></span>'})}<div class="body">
+ <button class="row g8 card" style="width:100%;text-align:left;padding:12px 14px" data-act="sheet" data-s="recipes">${ic('layers',20)}<span style="flex:1">Recipe: <b>${B.recipe}</b></span><span class="acc">Change</span></button>
+ <div class="seg mt12"><button>This item</button><button class="on">All ${B.items.length}</button></div>
+ <div class="bgrid mt12">${B.items.map(m=>{const st=B.phase!=='ready'?'wait':m.flag&&!B.reviewed[m.id]?'warn':'ok';return `<span style="background-image:url(img/${m.img}.jpg);background-position:${m.pos}"><i class="bs ${st}">${st==='wait'?'<i class="spin"></i>':st==='ok'?'✓':'!'}</i></span>`;}).join('')}</div>
+ <p class="cap mt12">${B.phase!=='ready'?'Applying recipe on this iPhone…':`${B.items.length-flagged.length} ready · ${flagged.length} need a look${vids?' · videos finish in the background':''}`}</p>
+ <div class="grow"></div><button class="btn pri ${B.phase!=='ready'?'dis':''}" data-act="${flagged.length?'batchReview':'batchSave'}">${flagged.length?`Review ${flagged.length} · Save ${B.items.length-flagged.length}`:`Save All ${B.items.length}`}</button></div>`;};
+SCR.live=()=>{const L=S.live;const a=FACES.selfie_a,b=FACES.selfie_b;
+ const box=(f,g)=>`left:${(f[0]-f[2]*g/2)*100}%;top:${(f[1]-f[3]*g/2)*100}%;width:${f[2]*g*100}%;height:${f[3]*g*100}%`;
+ const cvr=(f,me)=>{if(me&&L.rule==='except')return `<i class="camc" style="${box(f,1.3)};border:2px solid #3FC07A"><em style="position:absolute;top:-22px;background:#23794A;color:#fff;font:600 11px/1 -apple-system;padding:4px 8px;border-radius:999px;font-style:normal">You</em></i>`;
+  if(L.style==='Blur')return `<i class="camc" style="${box(f,1.25)};backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)"></i>`;
+  if(L.style==='Pixel')return `<i class="camc" style="${box(f,1.2)};border-radius:20%;backdrop-filter:blur(6px) contrast(1.4);background:conic-gradient(rgba(0,0,0,.12) 25%,rgba(255,255,255,.12) 0 50%,rgba(0,0,0,.12) 0 75%,rgba(255,255,255,.12) 0) 0 0/14px 14px"></i>`;
+  return `<i class="camc" style="${box(f,1.3)};font-size:84px">${L.style}</i>`;};
+ return `<div class="cam" style="background-image:url(img/selfie.jpg)"><div style="position:absolute;inset:0">${cvr(a,true)}${cvr(b,false)}</div>
+ <div class="camtop"><button class="ib" data-act="back" aria-label="Close">${ic('x',20)}</button><button class="chip on" style="background:rgba(255,255,255,.9)" data-act="liveRule">${L.rule==='except'?'Everyone except me':'Hide everyone'}</button><button class="ib" data-go="settings" aria-label="Settings">${ic('gear',20)}</button></div>
+ <div class="cambot">${L.rec?`<span class="rec">● REC ${fmt(L.sec)}</span>`:''}<div class="chips" style="-webkit-mask-image:none;mask-image:none">${['Blur','🌸','😎','🐻','Pixel'].map(v=>`<button class="chip sm ${L.style===v?'on':''}" style="background:${L.style===v?'#fff':'rgba(0,0,0,.45)'};color:${L.style===v?'#3F4BD6':'#fff'};${v.length<3?'font-size:18px;padding:4px 10px':''}" data-act="liveStyle" data-v="${v}">${v}</button>`).join('')}</div><button class="shutter ${L.rec?'rec':''}" data-act="rec" aria-label="Record"><i></i></button></div></div>`;};
+SCR.settings=()=>`${sbar()}${nav('Settings',{center:true,right:'<span style="width:40px"></span>'})}<div class="body">
+ <div class="list mt8"><button class="li" data-go="enroll">${ic('face',22)} This is me<span class="v">${S.me?'On '+ic('check',14,3):'Set up'} ${ic('chevr',16)}</span></button><button class="li" data-act="sheet" data-s="defEmoji">Default cover<span class="v">${S.defaultEmoji} ${ic('chevr',16)}</span></button><div class="li">Auto-scan on import<span class="v">${tg(S.autoScan,'autoScan')}</span></div><div class="li">Remove location on export<span class="v">${tg(S.stripMeta,'stripMeta')}</span></div></div>
+ <div class="list mt16"><div class="li">Recipes<span class="v">${S.recipes.length}</span></div><div class="li">Haptics<span class="v">${tg(S.haptics,'haptics')}</span></div><button class="li" data-go="paywall">Blurit Pro<span class="v">${S.pro?'Active':'Try free'} ${ic('chevr',16)}</span></button></div>
+ ${S.me?`<div class="list mt16"><button class="li danger" data-act="sheet" data-s="delFace">Delete face data</button></div>`:''}
+ <p class="cap ctr mt16">${ic('lock',12)} Face data stays on this iPhone.</p></div>`;
+SCR.enroll=()=>{const p=S.enroll;return `${sbar()}${nav('',{left:'back'})}<div class="body ctr">
+ <div class="ring" style="background:conic-gradient(#5564FF ${p*3.6}deg,var(--fill2) 0)">${avatar('selfie_a',170,2.2)}</div>
+ <h2 class="h2 mt16">${p>=100?'You’re all set':'Teach Blurit your face'}</h2><p class="sub mt8">${p>=100?'“Everyone except me” now keeps you visible automatically.':p>0?'Turn your head slowly…':'So “everyone except me” keeps you visible in every video.'}</p>
+ <div class="consent mt16"><div>${ic('lock',18)} Stays on this iPhone — never uploaded</div><div>${ic('eye',18)} Used only to keep you visible</div><div>${ic('trash',18)} Delete anytime in Settings</div></div>
+ <div class="grow"></div><button class="btn pri ${p>0&&p<100?'dis':''}" data-act="${p>=100?'back':'enrollGo'}">${p>=100?'Done':p>0?'Scanning…':'Scan My Face'}</button>${p>=100?'':'<button class="link" data-act="back">Not now — pick “You” per video</button>'}</div>`;};
+
+/* ===================== sheets ===================== */
+const SH={};
+SH.how={html:()=>`<h2 class="h2">How face detection works</h2><div class="consent mt16" style="background:var(--fill)"><div>${ic('lock',18)} Every frame is processed on this iPhone</div><div>${ic('eyeoff',18)} No uploads, no account, no AI training</div><div>${ic('trash',18)} Scan data is deleted when you close a project</div><div>${ic('face',18)} “This is me” is optional and deletable</div></div><button class="btn pri mt16" data-act="closeSheet">Got It</button>`};
+SH.alert={modal:true,cls:'alert',html:()=>`<span class="simtag">Simulated iOS alert</span><div class="ah"><b>“Blurit” Would Like to Access Your Photos</b><p>Pick only the photos you want to cover. They never leave this iPhone.</p></div><button class="ab b" data-act="access" data-v="limited">Limit Access…</button><button class="ab" data-act="access" data-v="full">Allow Full Access</button><button class="ab" data-act="access" data-v="denied">Don’t Allow</button>`};
+SH.studio={html:()=>{
+ const id=S.studio.id;const p=findP(id);if(!p)return '';const cv=p.cover;const isPerson=!!p.face;const tab=S.studio.tab;
+ const TABS=[['blur','Blur','sty'],['pixel','Pixel','pg'],['emoji','Emoji','pg'],['sticker','Sticker','pg'],['shape','Shape','pg'],['ai','AI ✦','pg']];
+ const on=(t,v)=>cv.t===t&&cv.v===v?'on':'';
+ let grid='';
+ if(tab==='blur')grid=[['soft','Soft'],['motion','Motion'],['frosted','Frosted']].map(([v,n])=>`<button class="${on('blur',v)}" data-act="setCover" data-t="blur" data-v="${v}"><span class="prv" style="background:radial-gradient(circle,#ccc,#555);filter:blur(1.5px)"></span><small>${n}</small></button>`).join('')+`<button data-go="blurlab"><span style="font-size:20px">${ic('drop',22)}</span><small>Blur lab</small></button>`;
+ if(tab==='pixel')grid=[['mosaic','Mosaic',10],['8bit','8-bit',16],['fine','Fine',6]].map(([v,n,s])=>`<button class="${on('pixel',v)}" data-act="setCover" data-t="pixel" data-v="${v}"><span class="prv" style="background:conic-gradient(#aaa 25%,#555 0 50%,#aaa 0 75%,#555 0) 0 0/${s}px ${s}px;border-radius:8px"></span><small>${n}</small></button>`).join('');
+ if(tab==='emoji')grid=['🌼','🌸','😎','🙈','🐻','⭐','💛','🦋','🌈','🙂'].map(e=>`<button class="${on('emoji',e)}" data-act="setCover" data-t="emoji" data-v="${e}">${e}</button>`).join('')+`<button data-act="sheet" data-s="all100" style="font-size:15px;font-weight:700;color:var(--acc-t)">100+</button>`;
+ if(tab==='sticker')grid=['💛','🎀','🌺','🍋','✨','🎈','🐼','🤍'].map(e=>`<button class="${on('sticker',e)}" data-act="setCover" data-t="sticker" data-v="${e}">${e}</button>`).join('');
+ if(tab==='shape')grid=['#2E3150','#EAD9C0','#111111','#E58FB0','#7E9BE8','#FFFFFF'].map(c=>`<button class="${on('shape',c)}" data-act="setCover" data-t="shape" data-v="${c}"><span class="prv" style="background:${c};box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)"></span></button>`).join('');
+ if(tab==='ai')grid=[['ghost','👻','Ghost'],['swap','🧑','Swap'],['erase','🫥','Erase']].map(([v,e,n])=>`<button class="${on('ai',v)}" data-act="setCover" data-t="ai" data-v="${v}">${e}<small>${n}</small>${S.pro?'':'<i class="lock">PRO</i>'}</button>`).join('');
+ return `<div class="row sbw"><b style="font-size:18px">Cover · ${p.isMe?'You':p.name||'Background people'}</b><button class="ib sm" data-act="closeSheet" aria-label="Done">${ic('check',18,2.5)}</button></div>
+ <div class="srow" style="padding-bottom:4px">Cover ${isPerson?'this person':'this'}${tg(cv.t!=='visible','coverOnOff')}</div>
+ <div class="stabs">${TABS.map(([t,n,g])=>`<button class="${tab===t?'on':''}" data-act="stab" data-v="${t}">${n} <i class="gd ${g}"></i></button>`).join('')}</div>
+ <div class="leg"><span><i class="gd pg"></i> Privacy-grade — can’t be reversed</span><span><i class="gd sty"></i> Stylistic</span></div>
+ <div class="sgrid">${grid}</div>
+ ${tab==='emoji'?`<div class="srow mt8">Match expression${tg(S.studio.match,'matchExpr')}</div>`:''}
+ ${isPerson?`<div class="seg mt12">${[['person','This person'],['all','All people'],['except','All except me']].map(([v,n])=>`<button class="${S.studio.apply===v?'on':''}" data-act="applyTo" data-v="${v}">${n}</button>`).join('')}</div>`:''}`;}};
+SH.all100={html:()=>{const q=S.searchQ.toLowerCase();const list=EMOJI.filter(([e,c])=>(S.cat==='all'||c===S.cat)&&(!q||(EMOJI_NAMES[e]||'').includes(q)||c.includes(q)));
+ return `<div class="row sbw"><b style="font-size:18px">100+ covers</b><span class="tag" style="background:#E3F3E8;color:#2E7348">Privacy-grade</span></div>
+ <div class="search mt12">${ic('search',18)}<input data-in="search" placeholder="Search — try “flower”" value="${S.searchQ}"></div>
+ <div class="chips mt12">${['all','flowers','citrus','hearts','faces','animals','shapes','party'].map(c=>`<button class="chip sm ${S.cat===c?'on':''}" data-act="cat" data-v="${c}">${c==='all'?'All':c[0].toUpperCase()+c.slice(1)}</button>`).join('')}</div>
+ <div class="emg mt12" id="emg">${list.map(([e])=>`<button data-act="pickEmoji" data-v="${e}" aria-label="${EMOJI_NAMES[e]}">${e}</button>`).join('')||'<p class="cap">No match — try “heart”.</p>'}</div>
+ <div class="sect">Sticker packs</div><div class="packs">${[['🌸','Flowers'],['🍋','Citrus'],['💛','Hearts'],['✂️','From photo']].map(([e,n])=>`<button data-act="${n==='From photo'?'toastOnly':'cat'}" data-v="${n.toLowerCase()}" data-m="Pick a photo — the subject becomes a sticker">${e}<small>${n}</small></button>`).join('')}</div>`;}};
+SH.covers={html:()=>{const rows=[...S.people,...S.objects.filter(o=>o.on)];
+ return `<b style="font-size:18px">Covers</b><div class="mt8">${rows.map(r=>`<div class="crow"><button class="row g12" style="flex:1;text-align:left" data-act="studio" data-id="${r.id}">${r.face?avatar(r.face,40):`<span class="cvi">${ic('text',20)}</span>`}<span><b>${r.isMe?'You':r.name}</b><small>${cvLabel(r.cover)}${grade(r.cover)?` · <i class="gd ${grade(r.cover)}"></i> ${grade(r.cover)==='pg'?'Privacy-grade':'Stylistic'}`:''}</small></span></button><button class="ib sm" data-act="vis" data-id="${r.id}" aria-label="Toggle cover">${ic(r.cover.t==='visible'?'eye':'eyeoff',18)}</button></div>`).join('')}
+ <button class="crow" data-go="crowd"><span class="av2">+${S.bg.count}</span><span style="flex:1"><b>Background people</b><small>${cvLabel(S.bg.cover)}</small></span>${ic('chevr',18)}</button></div>
+ <button class="btn sec mt12" data-act="addCover">${ic('plus',18)} Add Cover</button>`;}};
+SH.size={html:()=>`<b style="font-size:18px">Cover size</b><p class="cap" style="margin:4px 0 0">Bigger covers stay on faces that move fast.</p><div class="srow mt12"><span class="cap">S</span><input type="range" min="80" max="160" value="${Math.round(S.size*100)}" data-in="size"><span class="cap">L</span><span class="val" id="szv">${Math.round(S.size*100)}%</span></div><button class="btn pri mt12" data-act="closeSheet">Done</button>`};
+SH.more={html:()=>`<b style="font-size:18px">More tools</b><div class="mgrid mt12">${[['people','People','roster'],['brush','Brush','addCover'],['text','Text','textScan'],['audio','Audio','audio'],['shield','Privacy Check','check'],['eye','Compare','compareTip']].map(([i,n,a])=>`<button data-act="moreGo" data-v="${a}">${ic(i,24)}${n}</button>`).join('')}</div>`};
+SH.recipes={html:()=>`<b style="font-size:18px">Choose recipe</b><div class="list mt12" style="background:var(--fill)">${[...new Set([...S.recipes,'Hide all faces 🌼','Blur screens & text'])].map(r=>`<button class="li" data-act="recipe" data-v="${r}">${r}<span class="v">${S.batch&&S.batch.recipe===r?ic('check',18,3):''}</span></button>`).join('')}</div>`};
+SH.defEmoji={html:()=>`<b style="font-size:18px">Default cover</b><p class="cap" style="margin:4px 0 12px">Used by Smart Scan and Quick hides.</p><div class="emg">${['🌼','🌸','💛','🙂','😎','🐻','🦋','⭐','🌈','🍋','🎀','✨','🐰','🙈'].map(e=>`<button data-act="defEmoji" data-v="${e}" style="${S.defaultEmoji===e?'background:var(--acc-soft);box-shadow:inset 0 0 0 2px var(--acc)':''}">${e}</button>`).join('')}</div>`};
+SH.delFace={html:()=>`<b style="font-size:18px">Delete face data?</b><p class="sub mt8">Blurit will forget your face. “Everyone except me” will ask you to pick yourself in each video.</p><button class="btn danger mt16" data-act="delFace">Delete Face Data</button><button class="btn sec mt8" data-act="closeSheet">Cancel</button>`};
+SH.review={html:()=>{const m=S.batch.items.find(x=>x.flag&&!S.batch.reviewed[x.id]);if(!m)return '';const G=geo('street',354,300,.62);const pl=bx([.36,.655,.13,.035],1.6,G);
+ return `<b style="font-size:18px">${m.name}</b><p class="cap" style="margin:4px 0 10px">${m.flag} — the recipe covers faces only.</p>${photo(G,`<i class="cv sel" style="${pst(pl)}"></i>`)}<button class="btn pri mt12" data-act="reviewCover">Cover Plate (Pixel)</button><button class="btn sec mt8" data-act="reviewOk">It’s Fine</button>`;}};
+
+/* ===================== notes ===================== */
+const NOTES={
+ welcome:['First run','Welcome',['Tap “How face detection works” for the on-device promise','“Try with a sample video” skips setup and permissions','Get Started → personalise Smart Scan'],'Shows the outcome on real faces: You kept, 🌼 emoji, pixel.'],
+ protect:['First run','What do you hide?',['Toggle the cards — they set Smart Scan defaults','Skip is always available'],''],
+ priming:['First run','Photos access',['Continue shows a simulated iOS permission alert','Try “Don’t Allow” to see the denied state'],'We explain the next step in words instead of drawing a fake alert.'],
+ denied:['First run','Access denied',['Open Settings simulates granting access','Files and the sample keep you moving'],''],
+ home:['Home','Home',['Choose Photo or Video → import','Quick hides: one tap → pick → scan → straight to Privacy Check (3 steps)','After your first export, projects show privacy status and stay re-editable','Live Cam and Batch live here too'],''],
+ import:['Import','Choose media',['Tap Kids party (0:12) and Scan for the full flow','Select 2+ items to try Batch','Camera tile opens Live Cam'],''],
+ scan:['Smart Scan','Scanning',['Dots land on faces as they’re found','“Run in Background” → you’ll get a notification'],'Turn on “No faces found” in the panel to see the empty state.'],
+ noface:['Smart Scan','No faces found',['Draw a cover, or cover text & signs only'],''],
+ roster:['Smart Scan','People roster',['Pick Visible / emoji / Blur per person','No “This is me” yet? Tap “This is me?” on Person 1','“Hide everyone except me” in one tap','Background people → review 12 faces'],''],
+ crowd:['Smart Scan','Background people',['Tap a face to keep it visible','Cover all 12 in one tap'],''],
+ editor:['Editor','Editor',['Tap a face → Cover Studio','Press ▶ — the real Gemini clip plays with sound; covers follow every face (Apple Vision tracking, 12 fps)','Watch Person 2 at 0:07 — the cover drops for 0.4 s: that’s the gap · drag the timeline to scrub','Fix the gap · Undo/redo work · Hold the video to compare','Bottom bar: Add cover · Covers · Size · More'],'Export runs the Privacy Check first.'],
+ blurlab:['Editor','Blur lab',['Drag Strength — the blur updates live','Hold the image to compare','Blur is Stylistic: “Switch to Pixel” for real privacy'],''],
+ locked:['Editor','AI covers (Pro)',['Preview each AI cover free on the real face','Try 7 Days Free → paywall'],''],
+ paywall:['Pro','Blurit Pro',['Trial toggle changes the button and price line','Start the trial to unlock AI covers and voice disguise'],''],
+ brush:['Editor','Cover anything',['Tap mode: tap the banner, the cake, anything','Brush mode: drag to paint a region','Done adds a tracked Pixel cover'],''],
+ gaps:['Editor','Fix tracking gaps',['Red frames = no cover','Auto-fix fills them in'],''],
+ audio:['Editor','Audio privacy',['Play the preview — names are bleeped','Set Bleep / Mute per item','Voice disguise is Pro'],''],
+ check:['Finish','Privacy Check',['Each warning has one fix button','Score updates live — get to 6 of 6','Export stays available'],'Blur covers fail the “privacy-grade” check (Kloak’s honest labelling).'],
+ export:['Finish','Export',['Tap the quality row to cycle 1080p / 4K (Pro) / 720p','Location removal is on by default'],'Turn on “Export fails” in the panel to see the failure state.'],
+ exporting:['Finish','Exporting',['Cancel or keep editing — a banner tells you when it’s done'],''],
+ failed:['Finish','Export failed',['Export a smaller file or try again'],''],
+ done:['Finish','Done',['Save the choices as a recipe — it appears in Quick hides','Back to Home shows the project as Safe'],''],
+ batch:['Extras','Batch',['Change the recipe','Review flagged items, then save all'],''],
+ live:['Extras','Live Cam',['Swap cover styles like filters','Tap the rule chip to hide everyone','Record — REC timer runs'],''],
+ settings:['Extras','Settings',['This is me → face setup with consent','Default cover changes Smart Scan’s emoji','Delete face data appears once set up'],''],
+ enroll:['Extras','This is me',['Scan My Face runs a 2-second capture'],'Explicit consent: on-device, single purpose, deletable.'],
+};
+
+/* ===================== render ===================== */
+let TIMERS=[];
+const every=(ms,fn)=>TIMERS.push(setInterval(fn,ms)),later=(ms,fn)=>TIMERS.push(setTimeout(fn,ms));
+const clearT=()=>{TIMERS.forEach(t=>{clearInterval(t);clearTimeout(t)});TIMERS=[];S.playing=false;S.audioT=-1;cancelAnimationFrame(window._raf);const v=$('#vid');if(v)v.pause();};
+function render(anim){
+ const host=$('#screen');const prev=host.querySelector('.body');const sc=prev&&!anim?prev.scrollTop:0;
+ const el=document.createElement('div');el.className='scr '+(THEME[S.screen]||'light')+(anim?' a-'+anim:'');el.innerHTML=SCR[S.screen]()+'<div class="hind"></div>';
+ host.innerHTML='';host.appendChild(el);const nb=el.querySelector('.body');if(nb&&sc)nb.scrollTop=sc;
+  drawPixels();renderPanel();renderNotes();
+ const v=$('#vid');if(v&&!S.playing){const seek=()=>{try{v.currentTime=Math.min(DUR-0.05,S.t);}catch(e){}};if(v.readyState>=1)seek();else v.addEventListener('loadedmetadata',seek,{once:true});v.addEventListener('seeked',()=>{syncCovers();},{once:true});}
+}
+function renderSheet(animate){
+ const L=$('#sheetLayer');if(!S.sheet){L.innerHTML='';L.className='';return;}
+ const d=SH[S.sheet];const dark=THEME[S.screen]==='dark';const prev=L.querySelector('.shb');const sc=prev&&!animate?prev.scrollTop:0;
+ const html=d.html();if(!html){S.sheet=null;L.innerHTML='';L.className='';return;}
+ L.className='on';L.innerHTML=`<div class="scrim" ${d.modal?'':'data-act="closeSheet"'}></div><div class="sheet-l ${dark?'dark':'light'} ${d.cls||''} ${animate?'in':''}">${d.modal?'':'<i class="grabber"></i>'}<div class="shb">${html}</div></div>`;
+ const nb=L.querySelector('.shb');if(sc)nb.scrollTop=sc;drawPixels();
+}
+const openSheet=s=>{S.sheet=s;$('#toastL').innerHTML='';renderSheet(true);};
+const closeSheet=()=>{S.sheet=null;renderSheet();};
+function drawPixels(){
+ $$('canvas[data-px]').forEach(c=>{const[im,cx,cy,w,h,n]=c.dataset.px.split('|');let I,NW,NH;if(im==='video'){I=c.closest('.photo')&&c.closest('.photo').querySelector('video');if(!I||I.readyState<2)return;NW=I.videoWidth;NH=I.videoHeight;}else{I=IMG[im];if(!I.complete||!I.naturalWidth){I.addEventListener('load',drawPixels,{once:true});return;}NW=I.naturalWidth;NH=I.naturalHeight;}
+  const sw=+w*NW,sh=+h*NH;const cw=+n,chh=Math.max(2,Math.round(cw*sh/sw));c.width=cw;c.height=chh;const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.drawImage(I,+cx*NW-sw/2,+cy*NH-sh/2,sw,sh,0,0,cw,chh);});
+}
+function go(id,{replace=false}={}){clearT();if(!replace)S.stack.push(S.screen);S.screen=id;S.sheet=null;renderSheet();render(replace?'fade':'push');ENTER[id]&&ENTER[id]();}
+function back(){if(S.sheet){closeSheet();return;}clearT();if(!S.stack.length){go('home',{replace:true});return;}S.screen=S.stack.pop();renderSheet();render('pop');}
+function backTo(id){const i=S.stack.lastIndexOf(id);if(i<0){go(id,{replace:true});return;}clearT();S.stack=S.stack.slice(0,i);S.screen=id;S.sheet=null;renderSheet();render('pop');}
+function goHome(){clearT();S.stack=[];S.screen='home';S.sheet=null;S.quick=null;renderSheet();render('fade');}
+function toast(msg,action,label){const L=$('#toastL');L.innerHTML=`<div class="toast">${msg}${action?`<button data-act="${action}"><b>${label||'Undo'}</b></button>`:''}</div>`;clearTimeout(toast.t);toast.t=setTimeout(()=>{L.innerHTML=''},3400);}
+function notify(title,sub,act){const L=$('#notifL');L.innerHTML=`<div class="notif" data-act="${act}"><span class="ai">${ic('shield',20)}</span><span><b>${title}</b><small>${sub}</small></span></div>`;setTimeout(()=>{L.innerHTML=''},5000);}
+function flash(){const p=$('#phone');p.classList.add('flash');setTimeout(()=>p.classList.remove('flash'),650);}
+
+/* ===================== enter hooks ===================== */
+const ENTER={};
+ENTER.scan=()=>{S.scanStep=0;render();every(520,()=>{S.scanStep++;if(S.scanStep>6){clearT();finishScan();return;}render();});};
+ENTER.editor=()=>{if(!S.hintSeen)later(4500,()=>{if(S.screen==='editor'&&!S.hintSeen){S.hintSeen=true;render();}});};
+ENTER.exporting=()=>{S.expPct=0;render();every(80,()=>{S.expPct=Math.min(100,S.expPct+3.2);const b=$('#xbar');if(b){b.style.width=S.expPct+'%';$('#xtxt').textContent=Math.round(S.expPct)+'% · '+S.quality;}if(S.expPct>=100){clearT();exportFinished();}});};
+ENTER.batch=()=>{if(S.batch.phase==='ready')return;later(1400,()=>{S.batch.phase='ready';render();});};
+ENTER.enroll=()=>{S.enroll=S.me?100:0;render();};
+function finishScan(){
+ if(S.scen.noFaces){S.people=[];S.bg={count:0,cover:{t:'visible'}};S.bgFaces=[];S.objects=[{id:'banner',name:'Banner text',box:BANNER,on:false,cover:{t:'pixel',v:'mosaic'}}];S.gapFixed=true;go('noface',{replace:true});return;}
+ if(S.selection.length>1){startBatch();return;}
+ scanDefaults();
+ if(S.quick){applyQuick(S.quick);S.gapFixed=false;S.editorFrom='quick';go('check',{replace:true});toast(`Quick hide applied — ${S.quick==='screens'?'text covered':S.people.filter(p=>p.cover.t!=='visible').length+' people covered'}`);return;}
+ S.rosterFrom='scan';go('roster',{replace:true});
+}
+function exportFinished(){
+ if(S.scen.exportFail&&!S.failedOnce&&!S.exportBatch){S.failedOnce=true;go('failed',{replace:true});return;}
+ if(S.screen!=='exporting'){toast('Export finished — saved to Photos');addProject();return;}
+ go('done',{replace:true});
+}
+function addProject(){
+ if(S.exportBatch)return;const sc=score();const st=sc===6?'Safe':`${6-sc} left`;
+ const i=S.projects.findIndex(p=>p.id==='party');const pr={id:'party',img:'pv',name:'Kids party',dur:'0:10',state:st,meta:`${S.people.filter(p=>p.cover.t!=='visible').length+S.bg.count} covered · Today`,data:snap(),thumb:''};
+ if(i>=0)S.projects[i]=pr;else S.projects.unshift(pr);
+}
+function startBatch(){S.batch={items:S.selection.map(id=>MEDIA.find(m=>m.id===id)),reviewed:{},recipe:S.recipes[0],phase:'processing'};go('batch',{replace:true});}
+
+/* ===================== actions ===================== */
+function act(a,d,e,el){
+ const P=d.id&&findP(d.id);
+ switch(a){
+ case 'back':return back();
+ case 'home':return goHome();
+ case 'closeSheet':if(S.sheet==='studio'&&S.screen==='editor'){S.hintSeen=true;render();}return closeSheet();
+ case 'sheet':return openSheet(d.s);
+ case 'toastOnly':return toast(d.m);
+ case 'sample':S.onboarded=true;S.access=S.access||'later';S.selection=['party'];S.quick=null;S.stack=['home'];S.screen='home';return go('scan');
+ case 'protect':S.protect[d.k]=!S.protect[d.k];return render();
+ case 'askPhotos':return openSheet('alert');
+ case 'access':S.onboarded=true;closeSheet();
+  if(d.v==='denied'){S.access='denied';return go('denied');}
+  if(d.v==='settings'){S.access='limited';toast('Access granted in Settings');return goHome();}
+  S.access=d.v==='later'?'later':d.v;return goHome();
+ case 'files':toast('Files picker would open');return;
+ case 'quick':S.quick=d.v;S.selection=[];return go('import');
+ case 'pick':{const k=S.selection.indexOf(d.id);if(k>=0)S.selection.splice(k,1);else S.selection.push(d.id);return render();}
+ case 'startScan':if(!S.selection.length)return;if(S.selection.length===1&&!S.selection[0].startsWith('party'))toast('Prototype uses the Kids party video for the full flow');if(S.selection.length===1)S.selection=['party'];return go('scan',{replace:false});
+ case 'cancelScan':return back();
+ case 'scanBg':clearT();toast('Scanning in the background…');setTimeout(()=>{if(S.screen==='home'||S.screen==='import'){scanDefaults();notify('Scan finished','Kids party · 3 people tracked in every frame — tap to review','openRosterFromNotif');}},2600);return goHome();
+ case 'openRosterFromNotif':$('#notifL').innerHTML='';S.rosterFrom='scan';S.stack=['home'];S.screen='home';return go('roster');
+ case 'markMe':{const p=findP('you');p.isMe=true;p.name='You';p.cover={t:'visible'};toast('Marked as you — kept visible','sheetMe','Remember');return render();}
+ case 'sheetMe':return go('enroll');
+ case 'setP':{commit();P.cover=d.v==='vis'?{t:'visible'}:d.v==='emo'?{t:'emoji',v:S.defaultEmoji}:{t:'blur',v:'soft',s:12};return render();}
+ case 'rule':{if(d.v==='exceptme'&&!S.people.some(p=>p.isMe)){toast('First tap “This is me?” on your face');return;}commit();S.people.forEach(p=>{p.cover=d.v==='all'||!p.isMe?{t:'emoji',v:S.defaultEmoji}:{t:'visible'};});S.bg.cover={t:'pixel',v:'mosaic'};S.bgFaces.fill(true);return render();}
+ case 'objToggle':{commit();const o=findP(d.id);o.on=!o.on;return render();}
+ case 'coverAll':{const before=snap();const vis=JSON.parse(before);vis.people.forEach(p=>p.cover={t:'visible'});vis.objects.forEach(o=>o.on=false);vis.bg.cover={t:'visible'};S.undo=[JSON.stringify(vis)];S.redo=[];S.editorFrom='scan';
+  const n=S.people.filter(p=>p.cover.t!=='visible').length+(S.bg.cover.t!=='visible'?S.bg.count:0)+S.objects.filter(o=>o.on).length;go('editor',{replace:true});toast(`${ic('check',16,3)} Covered ${n} items`,'undo');return;}
+ case 'crowdFace':{commit();const i=+d.i;S.bgFaces[i]=!S.bgFaces[i];if(S.bg.cover.t==='visible')S.bg.cover={t:'blur',v:'soft',s:12};return render();}
+ case 'crowdAll':{commit();const all=S.bgFaces.every(x=>x);S.bgFaces.fill(!all);if(!all&&S.bg.cover.t==='visible')S.bg.cover={t:'pixel',v:'mosaic'};return render();}
+ case 'studio':{if(!P)return;S.studio.id=d.id;const t=P.cover.t;S.studio.tab=t==='visible'?'emoji':t;S.hintSeen=true;if(S.screen!=='editor'){backTo('editor');}else render();return openSheet('studio');}
+ case 'stab':{if(d.v==='ai'&&!S.pro){closeSheet();return go('locked');}S.studio.tab=d.v;return renderSheet();}
+ case 'setCover':{const p=findP(S.studio.id)||S.people[2];if(d.t==='ai'&&!S.pro){closeSheet();return go('locked');}commit();p.cover=d.t==='blur'?{t:'blur',v:d.v,s:(p.cover.t==='blur'&&p.cover.s)||12}:{t:d.t,v:d.v};
+  if(p.face&&S.studio.apply!=='person'){for(const q of S.people){if(q===p)continue;if(S.studio.apply==='except'&&q.isMe)continue;q.cover=clone(p.cover);}}
+  render();if(S.sheet)renderSheet();if(S.screen==='blurlab'&&d.t==='pixel'){toast('Switched to Pixel — privacy-grade');return back();}return;}
+ case 'coverOnOff':{const p=findP(S.studio.id);commit();p.cover=p.cover.t==='visible'?{t:'emoji',v:S.defaultEmoji}:{t:'visible'};render();return renderSheet();}
+ case 'applyTo':{S.studio.apply=d.v;const p=findP(S.studio.id);if(p.cover.t!=='visible'&&d.v!=='person'){commit();for(const q of S.people){if(q===p)continue;if(d.v==='except'&&q.isMe)continue;q.cover=clone(p.cover);}toast(d.v==='all'?'Applied to all people':'Applied to everyone except you');}render();return renderSheet();}
+ case 'matchExpr':S.studio.match=!S.studio.match;return renderSheet();
+ case 'pickEmoji':{const p=findP(S.studio.id);commit();p.cover={t:'emoji',v:d.v};S.studio.tab='emoji';render();S.sheet='studio';return renderSheet(true);}
+ case 'cat':S.cat=d.v==='from photo'?'all':d.v;return renderSheet();
+ case 'vis':{commit();const p=findP(d.id);if(p.on!==undefined&&!p.face){p.on=!p.on;}else p.cover=p.cover.t==='visible'?{t:'emoji',v:S.defaultEmoji}:{t:'visible'};render();return renderSheet();}
+ case 'undo':{if(!S.undo.length)return;S.redo.push(snap());restore(S.undo.pop());$('#toastL').innerHTML='';render();if(S.sheet)renderSheet();return toast('Undone');}
+ case 'redo':{if(!S.redo.length)return;S.undo.push(snap());restore(S.redo.pop());render();return toast('Redone');}
+ case 'play':{const v=$('#vid');if(S.playing){S.playing=false;if(v)v.pause();cancelAnimationFrame(window._raf);return render();}
+  if(S.t>=DUR-0.05)S.t=0;S.playing=true;render();const v2=$('#vid');if(!v2)return;v2.currentTime=S.t;v2.muted=false;v2.play().catch(()=>{v2.muted=true;v2.play();});
+  const loop=()=>{if(!S.playing||S.screen!=='editor')return;S.t=v2.currentTime;tick();if(v2.ended||S.t>=DUR-0.02){S.playing=false;S.t=DUR;render();return;}window._raf=requestAnimationFrame(loop);};window._raf=requestAnimationFrame(loop);return;}
+ case 'leaveEditor':{addDraft();toast('Saved — re-edit anytime');return goHome();}
+ case 'addCover':closeSheet();S.brush={mode:'tap',pts:[],track:true};return go('brush');
+ case 'moreGo':{closeSheet();const v=d.v;if(v==='roster'){S.rosterFrom='editor';return go('roster');}if(v==='addCover')return act('addCover',{});if(v==='textScan'){commit();S.objects.forEach(o=>o.on=true);render();return toast('Text found: banner covered with Pixel');}if(v==='compareTip')return toast('Hold the video to see the original');return go(v);}
+ case 'labReset':{const p=findP(S.studio.id);if(p.cover.t==='blur'){p.cover.s=12;}return render();}
+ case 'labArea':S.lab.area=d.v;return render();
+ case 'labToPixel':{const p=findP(S.studio.id);commit();p.cover={t:'pixel',v:'mosaic'};toast('Switched to Pixel — privacy-grade');return back();}
+ case 'lockPrev':S.lockPrev=d.v;return render();
+ case 'trial':S.trial=!S.trial;return render();
+ case 'plan':S.plan=d.v;return render();
+ case 'buy':{S.pro=true;toast('Welcome to Blurit Pro — AI covers unlocked');const p=findP(S.studio.id);if(S.stack.includes('locked')&&p){commit();p.cover={t:'ai',v:S.lockPrev||'ghost'};}if(S.stack.includes('editor'))return backTo('editor');return back();}
+ case 'bmode':{if(d.v==='erase'){S.brush.pts=[];S.brush.mode=S.brush.mode==='erase'?'tap':S.brush.mode;return render();}S.brush.mode=d.v;S.brush.pts=[];return render();}
+ case 'btrack':S.brush.track=!S.brush.track;return render();
+ case 'brushDone':{const G=geoF('pv',362,440,.45);const pts=S.brush.pts;if(!pts.length)return;let x0,x1,y0,y1;if(S.brush.mode==='tap'){const[x,y]=pts[0];x0=x-46;x1=x+46;y0=y-28;y1=y+28;}else{x0=Math.min(...pts.map(p=>p[0]))-14;x1=Math.max(...pts.map(p=>p[0]))+14;y0=Math.min(...pts.map(p=>p[1]))-14;y1=Math.max(...pts.map(p=>p[1]))+14;}
+  const box=[(x0+x1)/2/G.W,((y0+y1)/2-G.T)/G.IH,(x1-x0)/G.W,(y1-y0)/G.IH];commit();const n=S.objects.filter(o=>o.id.startsWith('obj')).length+1;
+  S.objects.push({id:'obj'+n,name:'Object '+n,box,on:true,cover:{t:'pixel',v:'mosaic'}});
+  if(S.screen==='brush'&&S.stack.includes('editor')){backTo('editor');}else{S.stack=['home'];go('editor',{replace:true});}
+  return toast(`Object ${n} covered${S.brush.track?' & tracked':''}`,'undo');}
+ case 'hold':S.hold=!S.hold;return render();
+ case 'autofix':{if(S.gapFixed)return;S.fixAnim=0;render();later(300,()=>{S.fixAnim=1;render();});later(650,()=>{S.fixAnim=-1;commit();S.gapFixed=true;render();toast('5 frames fixed — Person 2 covered throughout');});later(1500,()=>{if(S.screen==='gaps')back();});return;}
+ case 'audioSet':S.audio[d.k]=d.v;return render();
+ case 'audioPlay':{if(S.audioT>=0){clearT();return render();}S.audioT=0;render();every(90,()=>{S.audioT+=.025;if(S.audioT>1){clearT();return render();}render();});return;}
+ case 'disguise':if(!S.pro)return go('paywall');S.disguise=!S.disguise;return render();
+ case 'fixPeople':S.rosterFrom='editor';if(!S.stack.includes('editor')){S.stack=['home','editor'];}return go('roster');
+ case 'fixGap':return go('gaps');
+ case 'fixBlur':{commit();S.people.forEach(p=>{if(p.cover.t==='blur')p.cover={t:'pixel',v:'mosaic'};});if(S.bg.cover.t==='blur')S.bg.cover={t:'pixel',v:'mosaic'};S.objects.forEach(o=>{if(o.cover.t==='blur')o.cover={t:'pixel',v:'mosaic'};});toast('Blur switched to Pixel');return render();}
+ case 'fixMeta':S.stripMeta=true;toast('Location & camera info will be removed');return render();
+ case 'fixAudio':S.audio={maya:'bleep',addr:'mute'};toast('Name bleeped · address muted');return render();
+ case 'cycleQ':{const Q=['1080p','4K','720p'];let q=Q[(Q.indexOf(S.quality)+1)%3];if(q==='4K'&&!S.pro){toast('4K export is Pro');q='720p';}S.quality=q;return render();}
+ case 'stripMeta':S.stripMeta=!S.stripMeta;return render();
+ case 'keepOrig':S.keepOrig=!S.keepOrig;return render();
+ case 'autoScan':S.autoScan=!S.autoScan;return render();
+ case 'haptics':S.haptics=!S.haptics;return render();
+ case 'doExport':S.exportBatch=false;return go('exporting',{replace:false});
+ case 'share':toast('iOS share sheet would open');if(S.screen==='export'){S.exportBatch=false;return go('exporting');}return;
+ case 'cancelExport':clearT();toast('Export cancelled');return back();
+ case 'keepEditing':{toast('Exporting in the background');const left=(100-S.expPct)/3.2*80;clearT();setTimeout(()=>{addProject();notify('Export finished','Kids party saved to Photos','toastHome');},Math.max(800,left));return backTo('editor');}
+ case 'toastHome':$('#notifL').innerHTML='';return;
+ case 'fail720':S.quality='720p';return go('exporting',{replace:true});
+ case 'failRetry':return go('exporting',{replace:true});
+ case 'failBack':return backTo('editor');
+ case 'saveRecipe':if(!S.recipeSaved){S.recipeSaved=true;S.recipes.unshift('Kids party · '+S.defaultEmoji+' except me');toast('Recipe saved to Quick hides');}return render();
+ case 'finish':addProject();S.failedOnce=false;return goHome();
+ case 'openProject':{const p=S.projects[+d.i];if(p.data)restore(p.data);S.stack=['home'];S.hintSeen=true;go('editor');return toast('Re-editing — every cover is still editable');}
+ case 'batchStart':S.quick=null;S.selection=['party','selfie','street','portrait','party2','street2'];return startBatch();
+ case 'recipe':S.batch.recipe=d.v;S.batch.phase='processing';closeSheet();render();ENTER.batch();return;
+ case 'batchReview':return openSheet('review');
+ case 'reviewCover':case 'reviewOk':{const m=S.batch.items.find(x=>x.flag&&!S.batch.reviewed[x.id]);S.batch.reviewed[m.id]=a==='reviewCover'?'covered':'ok';toast(a==='reviewCover'?'Plate covered':'Kept as is');const more=S.batch.items.some(x=>x.flag&&!S.batch.reviewed[x.id]);render();if(more)return renderSheet(true);return closeSheet();}
+ case 'batchSave':S.exportBatch=true;return go('exporting');
+ case 'liveRule':S.live.rule=S.live.rule==='except'?'all':'except';return render();
+ case 'liveStyle':S.live.style=d.v;return render();
+ case 'rec':{if(S.live.rec){clearT();S.live.rec=false;toast(`Saved to Photos · ${S.live.rule==='except'?1:2} face${S.live.rule==='except'?'':'s'} covered`);S.live.sec=0;return render();}S.live.rec=true;S.live.sec=0;render();every(1000,()=>{S.live.sec++;render();});return;}
+ case 'enrollGo':{S.enroll=1;render();every(60,()=>{S.enroll=Math.min(100,S.enroll+3);render();if(S.enroll>=100){clearT();S.me=true;S.people.forEach(p=>{if(p.id==='you'){p.isMe=true;p.name='You';}});toast('Face saved on this iPhone');render();}});return;}
+ case 'delFace':S.me=false;S.enroll=0;S.people.forEach(p=>{if(p.id==='you')p.isMe=false,p.name='Person 1';});closeSheet();toast('Face data deleted');return render();
+ case 'defEmoji':S.defaultEmoji=d.v;closeSheet();toast(`Default cover: ${d.v}`);return render();
+ case 'drawFromNoFace':S.brush={mode:'tap',pts:[],track:true};S.stack=['home'];return go('brush');
+ case 'textOnly':S.objects.forEach(o=>o.on=true);S.stack=['home'];S.hintSeen=true;go('editor',{replace:true});return toast('Banner text covered with Pixel');
+ /* panel */
+ case 'jump':return jump(d.v);
+ case 'journey':return journey(d.v);
+ case 'scen':S.scen[d.k]=!S.scen[d.k];if(d.k==='exportFail')S.failedOnce=false;return renderPanel();
+ case 'pro':S.pro=!S.pro;return render();
+ case 'hot':document.body.classList.toggle('hotsp');return renderPanel();
+ case 'reset':{const sc=S.scen;S=fresh();S.scen=sc;$('#toastL').innerHTML='';renderSheet();return render('fade');}
+ }
+}
+function addDraft(){if(S.projects.find(p=>p.id==='party'))return addProject();const sc=score();S.projects.unshift({id:'party',img:'pv',name:'Kids party',dur:'0:10',state:'Draft',meta:`Draft · ${6-sc} check${6-sc===1?'':'s'} left`,data:snap()});}
+function ensureScan(){if(!S.people.length&&!S.scen.noFaces)scanDefaults();}
+function jump(id){clearT();S.sheet=null;renderSheet();const ED=['editor','blurlab','locked','brush','gaps','audio','check','export','exporting','failed','done','roster','crowd'];
+ if(ED.includes(id))ensureScan();
+ if(id==='batch'&&!S.batch){S.selection=['party','selfie','street','portrait','party2','street2'];S.batch={items:S.selection.map(i=>MEDIA.find(m=>m.id===i)),reviewed:{},recipe:S.recipes[0],phase:'processing'};}
+ if(id==='blurlab'||id==='locked'){S.studio.id=id==='blurlab'?'p3':'p2';}
+ if(id==='scan'&&!S.selection.length)S.selection=['party'];
+ S.onboarded=true;const pre={welcome:[],protect:['welcome'],priming:['welcome','protect'],denied:['priming'],home:[],import:['home'],scan:['home','import'],roster:['home'],crowd:['home','roster'],editor:['home'],blurlab:['home','editor'],locked:['home','editor'],paywall:['home','editor'],brush:['home','editor'],gaps:['home','editor'],audio:['home','editor'],check:['home','editor'],export:['home','editor','check'],exporting:['home','editor','check'],failed:['home','editor','check'],done:['home'],batch:['home'],live:['home'],settings:['home'],enroll:['home','settings'],noface:['home']};
+ S.stack=pre[id]||['home'];S.screen=id;render('fade');ENTER[id]&&ENTER[id]();}
+function journey(v){
+ if(v==='first'){const sc=S.scen;S=fresh();S.scen=sc;return render('fade');}
+ if(v==='core'){S.onboarded=true;S.quick=null;S.selection=[];S.stack=['home'];S.screen='home';return go('import');}
+ if(v==='quick'){S.onboarded=true;S.stack=[];S.screen='home';render('fade');return toast('Tap a Quick hide chip');}
+ if(v==='editor'){ensureScan();S.hintSeen=false;return jump('editor');}
+ if(v==='batch'){S.onboarded=true;S.stack=['home'];S.screen='home';return act('batchStart',{});}
+ if(v==='live')return jump('live');
+ if(v==='me')return jump('settings');
+}
+
+/* ===================== panel ===================== */
+const GROUPS=[['First run',['welcome','protect','priming','denied']],['Home & import',['home','import','scan','noface']],['People',['roster','crowd']],['Editor',['editor','blurlab','locked','brush','gaps','audio']],['Finish',['check','export','exporting','failed','done']],['Extras',['batch','live','paywall','settings','enroll']]];
+function renderPanel(){
+ const J=[['first','Start from scratch','Onboarding → first cover'],['core','Cover a video','Import → scan → roster → editor'],['quick','Quick hide','One tap → Privacy Check'],['editor','Editor','Covers, gap, audio, export'],['batch','Batch','Recipe on 6 items'],['live','Live Cam','Record with covers on'],['me','This is me','Settings & consent']];
+ $('#panel').innerHTML=`<div class="kick">Blurit · V2 · clickable prototype</div><h1>Tap through the whole experience</h1><p>Everything is live: covers render on the real photo, choices carry through to the Privacy Check, Undo works, and the timeline shows the tracking gap when you press play.</p>
+ <div class="pgrp"><h3>Journeys</h3>${J.map(([v,t,s],i)=>`<button class="jbtn" data-act="journey" data-v="${v}"><span class="n">${i+1}</span><span>${t}<small>${s}</small></span></button>`).join('')}</div>
+ <div class="pgrp"><h3>Scenarios</h3>${[['noFaces','No faces found'],['exportFail','Export fails (storage)']].map(([k,t])=>`<div class="sw">${t}<button class="mini ${S.scen[k]?'on':''}" data-act="scen" data-k="${k}"></button></div>`).join('')}<div class="sw">Pro user<button class="mini ${S.pro?'on':''}" data-act="pro"></button></div><div class="sw">Show tap targets<button class="mini ${document.body.classList.contains('hotsp')?'on':''}" data-act="hot"></button></div></div>
+ <div class="pgrp"><h3>Jump to screen</h3>${GROUPS.map(([g,ids])=>`<div style="font-size:11.5px;color:#77737F;margin:8px 0 4px">${g}</div><div class="screens">${ids.map(id=>`<button class="${S.screen===id?'cur':''}" data-act="jump" data-v="${id}">${NOTES[id][1]}</button>`).join('')}</div>`).join('')}</div>
+ <button class="resetb" data-act="reset">Reset prototype</button>`;
+}
+function renderNotes(){
+ const n=NOTES[S.screen];const c=checks();const sc=c.filter(x=>x.ok).length;
+ $('#notes').innerHTML=`<div class="card"><div class="sid">${n[0]}</div><h2>${n[1]}</h2><ul>${n[2].map(x=>`<li>${x}</li>`).join('')}</ul>${n[3]?`<div class="why">${n[3]}</div>`:''}</div>
+ ${S.people.length?`<div class="card"><div class="sid">Live state</div><div class="legend2">${S.people.map(p=>`${p.isMe?'You':p.name}: <b>${cvLabel(p.cover)}</b>${grade(p.cover)?` <i style="background:${grade(p.cover)==='pg'?'#3FAE6A':'#E0A030'}"></i>`:''}`).join('<br>')}<br>Background: <b>${cvLabel(S.bg.cover)}</b><br>Gap fixed: <b>${S.gapFixed?'yes':'no'}</b> · Audio: <b>${S.audio.maya}</b><br>Privacy Check: <b>${sc}/6</b> · Undo steps: <b>${S.undo.length}</b></div></div>`:''}
+ <div class="card"><div class="sid">Legend</div><div class="legend2"><i style="background:#3FAE6A"></i>Privacy-grade cover (can’t be reversed)<br><i style="background:#E0A030"></i>Stylistic (blur — can be reversed)<br>Click anywhere that isn’t a control to flash the tap targets.</div></div>`;
+}
+
+/* ===================== events ===================== */
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-go],[data-act]');
+ if(!t){if(e.target.closest('#phone')&&!e.target.closest('input')&&!e.target.closest('#brushPhoto'))flash();return;}
+ if(t.classList.contains('dis'))return;
+ if(t.dataset.go)return go(t.dataset.go);
+ act(t.dataset.act,t.dataset,e,t);
+});
+document.addEventListener('input',e=>{const k=e.target.dataset.in;if(!k)return;
+ if(k==='search'){S.searchQ=e.target.value;const pos=e.target.selectionStart;renderSheet();const i=$('#sheetLayer input[data-in=search]');i.focus();i.setSelectionRange(pos,pos);}
+ if(k==='size'){S.size=e.target.value/100;$('#szv').textContent=e.target.value+'%';render();}
+ if(k==='blurS'){const p=findP(S.studio.id);if(p.cover.t!=='blur'){commit();p.cover={t:'blur',v:'soft',s:12};render();}p.cover.s=+e.target.value;$('#bv').textContent=e.target.value;const c=$('#cv-lab');if(c)c.style.setProperty('--b',e.target.value+'px');}
+});
+document.addEventListener('change',e=>{if(e.target.dataset.in==='blurS')render();});
+/* hold to compare */
+let holdT;document.addEventListener('pointerdown',e=>{const ph=e.target.closest('.photo[data-hold]');if(!ph)return;holdT=setTimeout(()=>ph.classList.add('compare'),260);});
+document.addEventListener('pointerup',()=>{clearTimeout(holdT);$$('.photo.compare').forEach(p=>p.classList.remove('compare'));});
+/* brush canvas */
+let painting=false;
+function bpos(e){const r=$('#brushPhoto').getBoundingClientRect();const sc=r.width/362;return[(e.clientX-r.left)/sc,(e.clientY-r.top)/sc];}
+document.addEventListener('pointerdown',e=>{const bp=e.target.closest('#brushPhoto');if(!bp)return;const m=S.brush;if(m.mode==='tap'){m.pts=[bpos(e)];render();return;}if(m.mode==='brush'){painting=true;m.pts.push(bpos(e));render();}});
+document.addEventListener('pointermove',e=>{if(!painting)return;const bp=$('#brushPhoto');if(!bp)return;const p=bpos(e);const L=S.brush.pts[S.brush.pts.length-1];if(L&&Math.hypot(p[0]-L[0],p[1]-L[1])<8)return;S.brush.pts.push(p);const d=document.createElement('i');d.className='bdot';d.style.cssText=`left:${p[0]-14}px;top:${p[1]-14}px;width:28px;height:28px`;bp.appendChild(d);});
+document.addEventListener('pointerup',()=>{if(painting){painting=false;render();}});
+/* timeline scrub */
+let scrub=false;function scrubTo(e){const tl=$('#tl');if(!tl)return;const r=tl.getBoundingClientRect();const sc=r.width/(362-16+16);const x0=r.left+(8+62)*(r.width/tl.offsetWidth);const w=(tl.offsetWidth-78)*(r.width/tl.offsetWidth);const f=Math.max(0,Math.min(1,(e.clientX-x0)/w));S.t=f*DUR;const v=$('#vid');if(v){v.currentTime=Math.min(DUR-0.05,S.t);}tick();}
+document.addEventListener('pointerdown',e=>{if(e.target.closest('#tl')&&!e.target.closest('[data-act]')){if(S.playing){act('play',{});}scrub=true;scrubTo(e);}});
+document.addEventListener('pointermove',e=>{if(scrub)scrubTo(e);});
+document.addEventListener('pointerup',()=>{scrub=false;});
+/* playback tick */
+function tick(){const ph=$('#ph'),tm=$('#tm');if(ph)ph.style.left=`calc((100% - 78px) * ${S.t/DUR})`;if(tm)tm.textContent=fmt(S.t);syncCovers();
+ const c=$('#cv-p2');if(c){const p2=S.people.find(p=>p.id==='p2');const inGap=!S.gapFixed&&p2&&p2.cover.t!=='visible'&&S.t>=GAP[0]&&S.t<=GAP[1];c.classList.toggle('hid',inGap);}}
+function syncCovers(){const G=window._G;if(!G||S.screen!=='editor')return;
+ for(const p of S.people){const b=faceAt(p.face,S.t);const el=document.getElementById('cv-'+p.id);
+  if(el){const g=(1.32)*(S.size||1);const q=bx(b,g,G);el.style.left=q.l+'px';el.style.top=q.t+'px';el.style.width=q.w+'px';el.style.height=q.h+'px';if(el.classList.contains('emoji'))el.style.fontSize=Math.min(q.w,q.h)*.95+'px';
+   const c=el.querySelector('canvas');if(c){c.dataset.px=`video|${b[0]}|${b[1]}|${b[2]*g}|${b[3]*g}|${c.dataset.px.split('|')[5]}`;}}
+  const h=document.getElementById('hot-'+p.id);if(h){const q=bx(b,1.5,G);const w=Math.max(q.w,48),hh=Math.max(q.h,48);h.style.left=(q.l+q.w/2-w/2)+'px';h.style.top=(q.t+q.h/2-hh/2)+'px';}}
+ drawPixels();}
+/* scale device */
+function fit(){const d=$('#device');const small=innerWidth<=820;const pad=small?0:24;const s=Math.min(1,(innerHeight-40+(small?40:0))/(844+(small?0:24)),(small?innerWidth:innerWidth)/(390+(small?0:24)));d.style.transform=`scale(${s})`;$('#devwrap').style.height=(868*s)+'px';}
+addEventListener('resize',fit);fit();
+render('fade');
+</script>
+</body>
+</html>

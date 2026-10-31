@@ -1,0 +1,27 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blurit V2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F8F6F7;--paper:#fff;--ink:#111113;--muted:#67636F;--line:#E4E1E8;--acc:#5564FF;--acc-t:#3F4BD6}
+@media (prefers-color-scheme:dark){:root{--bg:#0E0E10;--paper:#1C1C1E;--ink:#F4F3F7;--muted:#A19EAA;--line:#2E2E33;--acc-t:#8E9BFF;color-scheme:dark}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,-apple-system,system-ui,sans-serif;padding:56px max(16px,env(safe-area-inset-left)) 64px}
+.wrap{max-width:860px;margin:0 auto}
+.k{font:600 12px/1 Inter,system-ui;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(34px,6vw,54px);line-height:1.05;letter-spacing:-.03em;margin:14px 0 12px;text-wrap:balance}h1 span{color:var(--acc-t)}
+p.l{color:var(--muted);max-width:620px;margin:0 0 32px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+a.c{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:inherit;background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:22px;transition:transform .15s,border-color .15s}
+a.c:hover,a.c:focus-visible{transform:translateY(-2px);border-color:var(--acc);outline:none}
+a.c b{font-size:20px;letter-spacing:-.01em}a.c span{color:var(--muted);font-size:14.5px}a.c em{font-style:normal;color:var(--acc-t);font-weight:600;margin-top:8px}
+footer{color:var(--muted);font-size:13px;margin-top:40px}
+</style></head><body><div class="wrap">
+<div class="k">Blurit · V2 beta concept · 31 Oct 2026</div>
+<h1>Cover anyone in your videos, <span>any way</span>.</h1>
+<p class="l">An on-device iOS app that finds every face in a video and lets you blur, pixelate or cover each person — with emoji, stickers, shapes or AI — before you share.</p>
+<div class="cards">
+<a class="c" href="prototype.html"><b>Clickable prototype</b><span>26 connected screens. A Gemini-generated video with covers that track every face, a working Privacy Check, undo and export.</span><em>Open prototype →</em></a>
+<a class="c" href="wireframes.html"><b>Wireframes</b><span>29 annotated screens across six stages, revised after a usability review and against Kloak.</span><em>Open wireframes →</em></a>
+</div>
+<footer>Best viewed on a laptop (side panels) or on a phone (full-screen prototype). Photos and video are AI-generated with Gemini; no real people.</footer>
+</div></body></html>
