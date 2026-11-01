@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Blurit V2 Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--page:#ECEAEE;--pink:#E9548F}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;height:100%}
-body{background:var(--page);font-family:-apple-system,"SF Pro Text","SF Pro Display",Inter,system-ui,sans-serif;color:#111113;-webkit-font-smoothing:antialiased;overflow:hidden}
+body{background:var(--page);font-family:"Google Sans Flex",-apple-system,"SF Pro Text","SF Pro Display",Inter,system-ui,sans-serif;color:#111113;-webkit-font-smoothing:antialiased;overflow:hidden}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 input{font:inherit}
 .ic{display:inline-block;vertical-align:middle;flex:none}
@@ -19,12 +19,12 @@ input{font:inherit}
 .stage{height:100%;display:grid;grid-template-columns:300px 1fr 300px;gap:24px;padding:20px 24px}
 .panel,.notes{overflow:auto;padding:4px 2px 24px}
 .panel h1{font-size:20px;letter-spacing:-.02em;margin:4px 0 4px}
-.panel .kick{font:600 11px/1.2 Inter,system-ui;letter-spacing:.06em;text-transform:uppercase;color:#77737F}
+.panel .kick{font:600 11px/1.2 "Google Sans Flex",Inter,system-ui;letter-spacing:.06em;text-transform:uppercase;color:#77737F}
 .panel p{font-size:13px;color:#57535F;margin:6px 0 14px;line-height:1.45}
 .pgrp{background:#fff;border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 1px 0 rgba(0,0,0,.04)}
 .pgrp h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:#77737F}
 .jbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:8px 10px;border-radius:10px;font-size:13.5px;font-weight:500}
-.jbtn:hover{background:#F2F0F5}.jbtn .n{font:600 11px Inter;color:#fff;background:#5564FF;border-radius:6px;padding:2px 6px}
+.jbtn:hover{background:#F2F0F5}.jbtn .n{font:600 11px "Google Sans Flex",Inter;color:#fff;background:#5564FF;border-radius:6px;padding:2px 6px}
 .jbtn small{display:block;color:#77737F;font-weight:400;font-size:12px}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px;font-size:13.5px}
 .mini{width:34px;height:20px;border-radius:10px;background:#D7D4DC;position:relative;flex:none}.mini::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.2s}
@@ -32,7 +32,7 @@ input{font:inherit}
 .screens{display:flex;flex-wrap:wrap;gap:6px}.screens button{font-size:12px;background:#F2F0F5;border-radius:8px;padding:5px 8px}.screens button.cur{background:#5564FF;color:#fff}
 .resetb{width:100%;padding:9px;border-radius:10px;background:#111113;color:#fff;font-weight:600;font-size:13px}
 .notes .card{background:#fff;border-radius:16px;padding:16px;margin-bottom:12px}
-.notes h2{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}.notes .sid{font:600 11px Inter;color:#77737F;letter-spacing:.05em;text-transform:uppercase}
+.notes h2{margin:0 0 4px;font-size:18px;letter-spacing:-.01em}.notes .sid{font:600 11px "Google Sans Flex",Inter;color:#77737F;letter-spacing:.05em;text-transform:uppercase}
 .notes ul{padding-left:18px;margin:10px 0 0;font-size:13.5px;line-height:1.5;color:#3b3842}.notes li{margin:5px 0}
 .notes .why{font-size:13px;color:#57535F;line-height:1.5;margin-top:10px}
 .legend2{font-size:12.5px;color:#57535F;line-height:1.7}.legend2 i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
@@ -144,7 +144,7 @@ input{font:inherit}
 .cv.erase{border-radius:50%;-webkit-backdrop-filter:blur(28px) saturate(.2);backdrop-filter:blur(28px) saturate(.2);box-shadow:0 0 30px 18px rgba(0,0,0,.05)}
 .cv.swap{border-radius:46%;background-repeat:no-repeat;box-shadow:0 0 0 2px rgba(255,255,255,.35)}
 .cv.keep{border-radius:46%;border:2px solid #3FC07A}
-.cv.keep em{position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#23794A;color:#fff;font:600 11px/1 -apple-system,Inter,system-ui;padding:4px 8px;border-radius:999px;font-style:normal;white-space:nowrap}
+.cv.keep em{position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#23794A;color:#fff;font:600 11px/1 -apple-system,"Google Sans Flex",Inter,system-ui;padding:4px 8px;border-radius:999px;font-style:normal;white-space:nowrap}
 .cv.dots{border:1.5px solid #9DA7FF;border-radius:14px;background:radial-gradient(circle,#D0D5FF 1.4px,transparent 1.9px) 0 0/8px 8px;animation:pop .35s}
 .cv.sel{border:2.5px solid #fff;border-radius:16px;box-shadow:0 0 0 1.5px #5564FF,0 2px 10px rgba(0,0,0,.4)}
 .cv.predict{border:2px dashed #FF6B6B;border-radius:16px;background:rgba(255,80,80,.1)}
@@ -193,7 +193,7 @@ input{font:inherit}
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:0 -14px}
 .pgrid>button{position:relative;aspect-ratio:1;background-size:cover;background-color:#ddd}
 .pgrid>button.sel::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px #5564FF;background:rgba(85,100,255,.12)}
-.pgrid .num{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:1.5px solid #fff;background:rgba(0,0,0,.2);font:700 13px/21px -apple-system,Inter;color:#fff;text-align:center;z-index:2}
+.pgrid .num{position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;border:1.5px solid #fff;background:rgba(0,0,0,.2);font:700 13px/21px -apple-system,"Google Sans Flex",Inter;color:#fff;text-align:center;z-index:2}
 .pgrid .sel .num{background:#5564FF;border-color:#5564FF}
 .pgrid .fc{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:2px 7px;font-size:11.5px;display:flex;gap:3px;align-items:center;z-index:2}
 .pgrid .dv{position:absolute;right:6px;bottom:6px;color:#fff;font-size:12px;font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6);z-index:2}
